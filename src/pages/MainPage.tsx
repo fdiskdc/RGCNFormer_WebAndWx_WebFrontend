@@ -13,50 +13,38 @@
  * Copyright (c) 2026 by ${Chao Deng}, All Rights Reserved. 
  */
 import React, { useState } from 'react';
-import { Input, Select, Button, Card, message, Space } from 'antd';
+import { Select, Button, Card, message, Space, InputNumber } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useRna } from '../context/RnaContext';
 import { useTranslation } from '../lib/i18n/LanguageContext';
-import { submitTask } from '../lib/api';
+import { submitTask, generateJobId, type DatasetType } from '../lib/api';
 
-const { TextArea } = Input;
 const { Option } = Select;
 
 const MainPage: React.FC = () => {
-    const [localRnaSequence, setLocalRnaSequence] = useState("TCAGGAGTTCGAGACCAGCCTGATCAACATGACGAAACCCTATCTCTACTAAAAATACAAAAATTAGCCGGGCGTGGTGGCATGCGCCTGTAGTCTCAGCTACTTGGGAGGCTGAAGCAGGAGAATCGTTTGAACCCAGGAGGCAGAGGTTGCAGTGAGCCGAGATCGTGCCACTGCACTCCAGCCTGGGTGACACAGCGAGACTCTGTCTCAAAAAAATAAAAATAAAAAAATAAATAAATAACCTTTAATTTAGTGAGACTTCATATAGAATTGTTTTAATGTTTAATATAGACCATTTGTTTTAGGTGAATTTAACAATTTCATACTGTGATTAAGATTAATTTCTTTTTCTGACTTCTACCAGAAAGCAGGAATTATGTTTCAAATGGACAATCATTTACCAAACCTTGTTAATCTGAATGAAGATCCACAACTATCTGAGATGCTGCTATATATGATAAAAGAAGGAACAACTACAGTTGGAAAGTATAAACCAAACTCAAGCCATGATATTCAGTTATCTGGGGTGCTGATTGCTGATGATCATTGGTATGTTAATCCTCTAAAAAAAAAGAAAAGGCACCTGTTCTATATCTTGATAACATGTGGTTTCCTTCATATGGCATATTCGTTGATACTGATCGTTTGGTAGAATTCTTCAAACCCATTGTTTAGTCAGGAAAAACATACATTCTGAGTGTGTTATAAGGATGATAGGTCAGTTACTCTCAATATAAAGTACAGTGTAATGCTCTCTCTGTTTTTGTTTTGGCATACTTGATCTGTTGATTGAAGAATAATTTATTTTCTTGCAATTATAATGATGCACATGCAAGTAAACTATCTATCTTACATAACAGAATTTTTGGTTGGATTGACCAATTTAAAAATGTTACTTTATGTGAATTTTGTTCATATGAATGGAATACTTGTATATATTGTTGGAATGATAGCGTATGTAAACTTTTTTGACTCTGCATTGTGTTTCCAAGATTTGT");
+    const [localRnaSequence, setLocalRnaSequence] = useState("");
+    const [localDataset, setLocalDataset] = useState<DatasetType>('Human');
+    const [localDatasetIndex, setLocalDatasetIndex] = useState(0);
 
-    const handleSequenceChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        const value = e.target.value.toUpperCase();
-        // Filter only ACGTUN characters
-        const filtered = value.replace(/[^ACGTUN]/g, '');
-        // Limit to 1001 characters
-        const truncated = filtered.slice(0, 1001);
-        setLocalRnaSequence(truncated);
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            handleSubmit();
-        }
-    };
     const [localServer, setLocalServer] = useState('server1');
-    const { setRnaSequence, setServer } = useRna();
+    const { setRnaSequence, setDataset, setDatasetIndex, setServer } = useRna();
     const navigate = useNavigate();
     const { t, changeLanguage, language } = useTranslation();
 
     const handleSubmit = async () => {
         try {
             setRnaSequence(localRnaSequence);
+            setDataset(localDataset);
+            setDatasetIndex(localDatasetIndex);
             setServer(localServer);
 
-            // Submit task to backend for async processing
             const data = await submitTask({
                 userId: 'user1',
-                rnaSequence: localRnaSequence
+                dataset: localDataset,
+                datasetIndex: localDatasetIndex,
+                jobId: generateJobId(),
             });
 
-            // Navigate to results page with jobId for polling
             navigate(`/results/${data.jobId}`);
         } catch (error: any) {
             console.error('Error submitting task:', error);
@@ -93,17 +81,23 @@ const MainPage: React.FC = () => {
                 }
                 style={{ width: 800 }}
             >
-                <div style={{ marginBottom: 8, textAlign: 'right', fontSize: 14, color: '#666' }}>
-                    Only "A/C/G/T/U/N" characters are support. {localRnaSequence.length}/1001
+                <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>{t('Dataset')}</label>
+                    <Select value={localDataset} onChange={(value) => setLocalDataset(value)} style={{ width: '100%' }}>
+                        <Option value="Human">Human</Option>
+                        <Option value="Plant">Plant</Option>
+                        <Option value="3Gen">3Gen</Option>
+                    </Select>
                 </div>
-                <TextArea
-                    rows={6}
-                    value={localRnaSequence}
-                    onChange={handleSequenceChange}
-                    onKeyDown={handleKeyDown}
-                    placeholder={t('Enter RNA sequence (ACGTUN only)')}
-                    maxLength={1001}
-                />
+                <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: 'block', marginBottom: 6, fontWeight: 500 }}>{t('Dataset Index')}</label>
+                    <InputNumber
+                        value={localDatasetIndex}
+                        onChange={(value) => setLocalDatasetIndex(value ?? 0)}
+                        min={0}
+                        style={{ width: '100%' }}
+                    />
+                </div>
                 <div style={{ margin: '20px 0' }}>
                     <Select value={localServer} onChange={(value) => setLocalServer(value)} style={{ width: '100%' }}>
                         <Option value="server1">{t('Server 1')}</Option>

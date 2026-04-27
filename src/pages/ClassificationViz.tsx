@@ -4,7 +4,7 @@ import { Spin, Alert, Card, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 import { useRna, type ClassificationResult } from '../context/RnaContext';
 import { useTranslation } from '../lib/i18n/LanguageContext';
-import { submitTask } from '../lib/api';
+import { submitTask, generateJobId } from '../lib/api';
 
 // 定义树节点类型
 interface TreeNode {
@@ -66,7 +66,7 @@ const ClassificationViz: React.FC<ClassificationVizProps> = ({ data: propData })
   // 用于存储请求过程中可能发生的错误
   const [error, setError] = useState<string | null>(null);
 
-  const { rnaSequence, setClassificationResults } = useRna();
+  const { rnaSequence, dataset, datasetIndex, setClassificationResults } = useRna();
 
   // 使用useEffect在组件加载后执行数据获取操作
   useEffect(() => {
@@ -135,22 +135,16 @@ const ClassificationViz: React.FC<ClassificationVizProps> = ({ data: propData })
       return;
     }
 
-    // Otherwise, fetch data from API using rnaSequence
-    if (!rnaSequence) {
-      setLoading(false);
-      setError(t('No RNA sequence provided.'));
-      return;
-    }
-    // 定义数据获取函数
+    // Otherwise, fetch data from API using dataset + datasetIndex
     const fetchData = async () => {
       try {
         const apiData = await submitTask({
-          jobId: crypto.randomUUID(),
+          jobId: generateJobId(),
           userId: 'user1',
-          rnaSequence: rnaSequence
+          dataset: dataset,
+          datasetIndex: datasetIndex,
         });
 
-        // 从API数据中提取分类结果部分
         const chartData = apiData.classification;
 
         processDataAndSetResults(chartData);
@@ -159,13 +153,12 @@ const ClassificationViz: React.FC<ClassificationVizProps> = ({ data: propData })
         console.error("Failed to fetch or process data:", e);
         setError(t('Unable to load chart data: {message}').replace('{message}', e.message));
       } finally {
-        // 无论成功或失败，都结束加载状态
         setLoading(false);
       }
     };
 
     fetchData();
-      }, [propData, rnaSequence, setClassificationResults]);
+      }, [propData, rnaSequence, dataset, datasetIndex, setClassificationResults]);
 
   if (!propData && !rnaSequence) {
     return (

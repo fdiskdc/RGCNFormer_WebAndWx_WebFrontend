@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LanguageProvider } from './lib/i18n/LanguageContext';
+import WorkspacePage from './pages/WorkspacePage';
 import MainPage from './pages/MainPage';
 import ClassificationViz from './pages/ClassificationViz';
 import AttentionViz from './pages/AttentionViz';
@@ -10,6 +11,7 @@ import TargetGcnViz from './pages/TargetGcnViz';
 import IntegratedGradientsViz from './pages/IntegratedGradientsViz';
 import ModelViz from './pages/ModelViz';
 import ResultsPage from './pages/ResultsPage';
+import VizDisplayPage from './pages/VizDisplayPage';
 import VizLayout from './components/VizLayout';
 import './App.css';
 
@@ -29,7 +31,8 @@ const App: React.FC = () => {
     <LanguageProvider>
       <QueryClientProvider client={queryClient}>
         <Routes>
-          <Route path="/" element={<MainPage />} />
+          <Route path="/" element={<WorkspacePage />} />
+          <Route path="/legacy" element={<MainPage />} />
           <Route element={<VizLayout />}>
             <Route path="/classification" element={<ClassificationViz />} />
             <Route path="/attention" element={<AttentionViz />} />
@@ -38,6 +41,7 @@ const App: React.FC = () => {
             <Route path="/integrated-gradients" element={<IntegratedGradientsViz />} />
             <Route path="/model-viz" element={<ModelViz />} />
           </Route>
+          <Route path="/viz-display" element={<VizDisplayPage />} />
           <Route path="/results/:jobId" element={<ResultsPage />} />
         </Routes>
       </QueryClientProvider>

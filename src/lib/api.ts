@@ -3,24 +3,10 @@
  * Centralized API endpoint management
  */
 
-// ==================== API Endpoints ====================
-const API_BASE_URL = '/rgcnformer/api/v1';
+// ==================== Import from Config ====================
 
-const ENDPOINTS = {
-  // Task submission
-  SUBMIT_TASK: `${API_BASE_URL}/submit-task`,
-  
-  // Result retrieval
-  GET_RESULT: (jobId: string) => `${API_BASE_URL}/results/${jobId}`,
-  
-  // Visualizations
-  MODEL_GRAPH: `${API_BASE_URL}/model-graph`,
-  INTEGRATED_GRADIENTS: `${API_BASE_URL}/integrated-gradients`,
-  VISUALIZE_GCN_AGGREGATION: `${API_BASE_URL}/visualize-gcn-aggregation`,
-  
-  // Legacy endpoint (hardcoded localhost - should be updated)
-  PREDICT: 'http://localhost:5000/rgcnformer/api/predict',
-} as const;
+import { ENDPOINTS, DEFAULT_HEADERS } from '../../config/api.config';
+import { uuidv7 } from './uuidv7';
 
 // ==================== Type Definitions ====================
 
@@ -62,9 +48,12 @@ export interface ApiError {
   detail?: string;
 }
 
+export type DatasetType = 'Human' | 'Plant' | '3Gen';
+
 export interface SubmitTaskRequest {
   userId: string;
-  rnaSequence: string;
+  dataset: DatasetType;
+  datasetIndex: number;
   jobId?: string;
 }
 
@@ -89,6 +78,13 @@ export interface GcnAggregationRequest {
 }
 
 // ==================== Utility Functions ====================
+
+/**
+ * Generate a time-sortable UUID v7 job identifier
+ */
+export function generateJobId(): string {
+  return uuidv7();
+}
 
 /**
  * Create standardized error object
@@ -151,7 +147,7 @@ export async function submitTask(request: SubmitTaskRequest): Promise<SubmitTask
   const response = await fetch(ENDPOINTS.SUBMIT_TASK, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      ...DEFAULT_HEADERS,
     },
     body: JSON.stringify(request),
   });
@@ -196,7 +192,7 @@ export async function fetchIntegratedGradients(request: IntegratedGradientsReque
   const response = await fetch(ENDPOINTS.INTEGRATED_GRADIENTS, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      ...DEFAULT_HEADERS,
     },
     body: JSON.stringify(request),
   });
@@ -215,7 +211,7 @@ export async function fetchGcnAggregation(request: GcnAggregationRequest): Promi
   const response = await fetch(ENDPOINTS.VISUALIZE_GCN_AGGREGATION, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      ...DEFAULT_HEADERS,
     },
     body: JSON.stringify(request),
   });
@@ -234,7 +230,7 @@ export async function predict(request: any): Promise<any> {
   const response = await fetch(ENDPOINTS.PREDICT, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
+      ...DEFAULT_HEADERS,
     },
     body: JSON.stringify(request),
   });

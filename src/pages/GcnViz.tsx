@@ -4,7 +4,7 @@ import { Spin, Alert, Card, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 import { useRna } from '../context/RnaContext';
 import { useTranslation } from '../lib/i18n/LanguageContext';
-import { submitTask } from '../lib/api';
+import { submitTask, generateJobId } from '../lib/api';
 
 interface Node {
   id: string;
@@ -80,7 +80,7 @@ const GcnViz: React.FC<GcnVizProps> = ({ data: propData }) => {
   const resizeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const classifiedLinksRef = useRef<ClassifiedLinks | null>(null);
 
-  const { rnaSequence } = useRna();
+  const { rnaSequence, dataset, datasetIndex } = useRna();
 
   // Helper function to classify links
   const classifyLinks = (links: Link[], nodes: Node[]): ClassifiedLinks => {
@@ -277,9 +277,10 @@ const GcnViz: React.FC<GcnVizProps> = ({ data: propData }) => {
 
       try {
         const apiData = await submitTask({
-          jobId: crypto.randomUUID(),
+          jobId: generateJobId(),
           userId: 'user1',
-          rnaSequence: rnaSequence
+          dataset: dataset,
+          datasetIndex: datasetIndex,
         });
         const graphData: GraphData = apiData.gcn;
 
@@ -292,7 +293,7 @@ const GcnViz: React.FC<GcnVizProps> = ({ data: propData }) => {
     };
 
     fetchData();
-  }, [propData, rnaSequence]);
+  }, [propData, rnaSequence, dataset, datasetIndex]);
 
   // Set camera position after data is loaded
   useEffect(() => {

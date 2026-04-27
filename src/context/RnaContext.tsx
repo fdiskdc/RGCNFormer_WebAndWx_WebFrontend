@@ -13,6 +13,7 @@
  * Copyright (c) 2026 by ${Chao Deng}, All Rights Reserved. 
  */
 import React, { createContext, useState, useContext, type ReactNode } from 'react';
+import type { DatasetType } from '../lib/api';
 
 export interface ClassificationResult {
     name: string;
@@ -24,6 +25,10 @@ interface RnaContextType {
     setRnaSequence: (sequence: string) => void;
     server: string;
     setServer: (server: string) => void;
+    dataset: DatasetType;
+    setDataset: (dataset: DatasetType) => void;
+    datasetIndex: number;
+    setDatasetIndex: (index: number) => void;
     classificationResults: ClassificationResult[];
     setClassificationResults: (results: ClassificationResult[]) => void;
 }
@@ -33,10 +38,12 @@ const RnaContext = createContext<RnaContextType | undefined>(undefined);
 export const RnaProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [rnaSequence, setRnaSequence] = useState('');
     const [server, setServer] = useState('');
+    const [dataset, setDataset] = useState<DatasetType>('Human');
+    const [datasetIndex, setDatasetIndex] = useState(0);
     const [classificationResults, setClassificationResults] = useState<ClassificationResult[]>([]);
 
     return (
-        <RnaContext.Provider value={{ rnaSequence, setRnaSequence, server, setServer, classificationResults, setClassificationResults }}>
+        <RnaContext.Provider value={{ rnaSequence, setRnaSequence, server, setServer, dataset, setDataset, datasetIndex, setDatasetIndex, classificationResults, setClassificationResults }}>
             {children}
         </RnaContext.Provider>
     );
