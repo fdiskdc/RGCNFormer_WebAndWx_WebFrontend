@@ -40,7 +40,11 @@ const CLASS_NAMES = [
   'ac4C (6)', 'm1A (7)', 'm5C (8)', 'm6A (9)', 'm6Am (10)', 'm7G (11)'
 ];
 
-const IntegratedGradientsViz: React.FC = () => {
+interface IntegratedGradientsVizProps {
+  data?: GraphData;
+}
+
+const IntegratedGradientsViz: React.FC<IntegratedGradientsVizProps> = ({ data: propData }) => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -61,7 +65,6 @@ const IntegratedGradientsViz: React.FC = () => {
   const topNodeIds = React.useMemo(() => {
     if (!gcnData || !hasComputed) return new Set<string>();
 
-    // Sort nodes by absolute attribution score and get top N IDs
     const sortedNodes = [...gcnData.nodes]
       .sort((a: any, b: any) => Math.abs(b.data?.attributionScore || 0) - Math.abs(a.data?.attributionScore || 0))
       .slice(0, topN);
@@ -69,28 +72,46 @@ const IntegratedGradientsViz: React.FC = () => {
     return new Set(sortedNodes.map((node: Node) => node.id));
   }, [gcnData, hasComputed, topN]);
 
+  // Process propData when provided (for Modal usage)
+  useEffect(() => {
+    if (propData) {
+      const graphData = propData;
+      if (graphData.nodes) {
+        graphData.nodes.forEach((node: any) => {
+          node.label = node.id;
+          if (!node.x) node.x = 0;
+          if (!node.y) node.y = 0;
+          if (!node.z) node.z = 0;
+        });
+      }
+
+      if (graphData.edges && graphData.nodes) {
+        const nodeMap = new Map<string, Node>();
+        graphData.nodes.forEach((node: Node) => {
+          nodeMap.set(node.id, node);
+        });
+        graphData.edges.forEach((link: any) => {
+          if (typeof link.source === 'string') {
+            link.source = nodeMap.get(link.source);
+          }
+          if (typeof link.target === 'string') {
+            link.target = nodeMap.get(link.target);
+          }
+        });
+      }
+
+      setGcnData(graphData);
+      setHasComputed(true);
+    }
+  }, [propData]);
+
   // Update container size on window resize
   useEffect(() => {
     const updateSize = () => {
       if (!containerRef.current) return;
 
-      const windowWidth = window.innerWidth;
-      const windowHeight = window.innerHeight;
-      const desktop = windowWidth > DESKTOP_BREAKPOINT;
-      setIsDesktop(desktop);
-
-      let availableWidth = windowWidth;
-      if (desktop) {
-        const siderElement = document.querySelector('.ant-layout-sider');
-        const isCollapsed = siderElement?.classList.contains('ant-layout-sider-collapsed');
-        const sidebarWidth = isCollapsed ? SIDER_WIDTH_COLLAPSED : SIDER_WIDTH_EXPANDED;
-        availableWidth = windowWidth - sidebarWidth;
-      }
-
-      availableWidth -= CONTENT_PADDING;
-      const availableHeight = windowHeight - CONTENT_PADDING;
-
-      setContainerSize({ width: availableWidth, height: availableHeight });
+      const rect = containerRef.current.getBoundingClientRect();
+      setContainerSize({ width: rect.width, height: rect.height });
     };
 
     updateSize();
@@ -205,7 +226,7 @@ const IntegratedGradientsViz: React.FC = () => {
     return `rgb(${r}, ${g}, ${b})`; // 关键节点完全不透明，颜色深沉
   };
 
-  if (!rnaSequence) {
+  if (!propData && !rnaSequence) {
     return (
       <Alert
         message={t('Error')}
@@ -231,7 +252,8 @@ const IntegratedGradientsViz: React.FC = () => {
       </Card>
 
       <Space direction="vertical" style={{ width: '100%' }} size="large">
-        {/* Control Panel */}
+        {/* Control Panel - hidden when propData is provided */}
+        {!propData && (
         <Card title={t('Integrated Gradients Controls')}>
           <Space wrap>
             <span>{t('Target Class ID:')}</span>
@@ -258,6 +280,7 @@ const IntegratedGradientsViz: React.FC = () => {
             </Button>
           </Space>
         </Card>
+        )}
 
         {/* Graph Visualization */}
         <Card>
@@ -329,6 +352,11 @@ const IntegratedGradientsViz: React.FC = () => {
                 backgroundColor="#F8F9F9"
                 enableNodeDrag={true}
                 cooldownTicks={200}
+                onEngineStop={() => {
+                  if (graphRef.current) {
+                    graphRef.current.zoomToFit(400);
+                  }
+                }}
               />
             )}
           </div>

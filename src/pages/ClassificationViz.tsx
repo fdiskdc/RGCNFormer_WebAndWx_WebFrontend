@@ -141,6 +141,7 @@ const ClassificationViz: React.FC<ClassificationVizProps> = ({ data: propData })
         const apiData = await submitTask({
           jobId: generateJobId(),
           userId: 'user1',
+          rnaSequence: rnaSequence,
           dataset: dataset,
           datasetIndex: datasetIndex,
         });

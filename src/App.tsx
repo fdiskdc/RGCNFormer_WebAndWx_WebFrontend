@@ -12,6 +12,7 @@ import IntegratedGradientsViz from './pages/IntegratedGradientsViz';
 import ModelViz from './pages/ModelViz';
 import ResultsPage from './pages/ResultsPage';
 import VizDisplayPage from './pages/VizDisplayPage';
+import ComparePage from './pages/ComparePage';
 import VizLayout from './components/VizLayout';
 import './App.css';
 
@@ -43,6 +44,7 @@ const App: React.FC = () => {
           </Route>
           <Route path="/viz-display" element={<VizDisplayPage />} />
           <Route path="/results/:jobId" element={<ResultsPage />} />
+          <Route path="/compare" element={<ComparePage />} />
         </Routes>
       </QueryClientProvider>
     </LanguageProvider>

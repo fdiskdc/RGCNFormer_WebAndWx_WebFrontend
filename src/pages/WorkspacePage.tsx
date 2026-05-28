@@ -3,8 +3,9 @@
  * Replaces the old MainPage as the root route.
  */
 
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Modal, message } from 'antd';
 import './WorkspacePage.css';
 import PuzzleLibrary from '../components/workspace/PuzzleLibrary';
 import WorkspaceCanvas from '../components/workspace/WorkspaceCanvas';
@@ -17,13 +18,13 @@ import type {
   VizType,
   DatasetType,
 } from '../components/workspace/types';
-import { BINDING_COLORS, getBindingColorIndex } from '../components/workspace/types';
+import { BINDING_COLORS, getBindingColorIndex, VIZ_TYPE_REGISTRY } from '../components/workspace/types';
 import {
   DEFAULT_MODELS,
   createDefaultSequenceBlock,
   createVizBlock,
-  createMockTaskRunner,
 } from '../components/workspace/mockData';
+import { submitTask, fetchResult, isCompleted, isFailed, generateJobId } from '../lib/api';
 
 // Re-use existing visualization components for rendering in the viz zone
 import ClassificationViz from './ClassificationViz';
@@ -41,44 +42,8 @@ const WorkspacePage: React.FC = () => {
   const [modelBlocks] = useState<ModelBlock[]>(DEFAULT_MODELS);
   const [vizBlocks, setVizBlocks] = useState<VisualizationBlock[]>([]);
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
-
-  const taskRunnerRef = useRef(createMockTaskRunner());
-
-  // ==================== Task Result Listener ====================
-  useEffect(() => {
-    const unsubscribe = taskRunnerRef.current.onResult((result) => {
-      setSequenceBlocks((prev) =>
-        prev.map((block) => {
-          if (block.id !== result.sequenceBlockId) return block;
-
-          if (result.status === 'processing') {
-            return { ...block, status: 'processing' as const };
-          }
-
-          if (result.status === 'completed') {
-            return {
-              ...block,
-              status: 'completed' as const,
-              resultSummary: result.result,
-            } as SequenceBlock;
-          }
-
-          if (result.status === 'failed') {
-            return {
-              ...block,
-              status: 'failed' as const,
-            } as SequenceBlock;
-          }
-
-          return block;
-        })
-      );
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
+  const [vizModalVisible, setVizModalVisible] = useState(false);
+  const [vizModalBlock, setVizModalBlock] = useState<VisualizationBlock | null>(null);
 
   // ==================== Block Operations ====================
 
@@ -129,80 +94,97 @@ const WorkspacePage: React.FC = () => {
     [sequenceBlocks]
   );
 
-  // ==================== Submit Sequence ====================
-
-  const submitSequence = useCallback(
-    (blockId: string) => {
-      const block = sequenceBlocks.find((b) => b.id === blockId);
-      if (!block) return;
-
-      // Update to submitting state
-      setSequenceBlocks((prev) =>
-        prev.map((b) => (b.id === blockId ? { ...b, status: 'submitting' as const } : b))
-      );
-
-      // Start mock task with a sample sequence for processing
-      const jobId = taskRunnerRef.current.start(blockId);
-
-      setSequenceBlocks((prev) =>
-        prev.map((b) =>
-          b.id === blockId
-            ? { ...b, status: 'queued' as const, jobId } as SequenceBlock
-            : b
-        )
-      );
-    },
-    [sequenceBlocks]
-  );
-
   // ==================== Run Visualization ====================
 
   const runVisualization = useCallback(
-    (vizBlockId: string) => {
+    async (vizBlockId: string) => {
       const vizBlock = vizBlocks.find((b) => b.id === vizBlockId);
       if (!vizBlock || !vizBlock.boundSequenceId) return;
 
       const seqBlock = sequenceBlocks.find((s) => s.id === vizBlock.boundSequenceId);
-      if (!seqBlock || !seqBlock.resultSummary) {
-        // Sequence hasn't been submitted yet
+      if (!seqBlock || !seqBlock.sequence) return;
+
+      // Check if the bound model is not yet implemented
+      const IMPLEMENTED_MODELS = ['model_rgcnformer'];
+      if (vizBlock.boundModelId && !IMPLEMENTED_MODELS.includes(vizBlock.boundModelId)) {
+        message.warning('Model Coming Soon — This model is not yet available.');
         return;
       }
 
+      // Set viz block to running
       setVizBlocks((prev) =>
         prev.map((b) =>
-          b.id === vizBlockId
-            ? { ...b, status: 'running' as const, result: seqBlock.resultSummary }
-            : b
+          b.id === vizBlockId ? { ...b, status: 'running' as const } : b
         )
       );
 
-      // Simulate short delay
-      setTimeout(() => {
+      try {
+        // Submit task to backend
+        const submitResponse = await submitTask({
+          jobId: generateJobId(),
+          userId: 'user1',
+          rnaSequence: seqBlock.sequence,
+        });
+
+        let resultData: any = null;
+
+        // Check if result was returned directly (cached)
+        if (isCompleted(submitResponse as any)) {
+          resultData = submitResponse;
+        } else {
+          // Poll for result
+          const jobId = submitResponse.jobId;
+          const maxAttempts = 100;
+          let attempts = 0;
+
+          while (attempts < maxAttempts) {
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            const result = await fetchResult(jobId);
+
+            if (isCompleted(result)) {
+              resultData = result;
+              break;
+            }
+            if (isFailed(result)) {
+              throw new Error(result.error || 'Task failed');
+            }
+            attempts++;
+          }
+
+          if (!resultData) {
+            throw new Error('Timeout: task did not complete within expected time');
+          }
+        }
+
+        // Update viz block with result
+        setVizBlocks((prev) => {
+          const updated = prev.map((b) =>
+            b.id === vizBlockId
+              ? { ...b, status: 'completed' as const, result: resultData }
+              : b
+          );
+          const completed = updated.find((b) => b.id === vizBlockId);
+          if (completed && completed.result) {
+            setVizModalBlock(completed);
+            setVizModalVisible(true);
+          }
+          return updated;
+        });
+      } catch (error: any) {
         setVizBlocks((prev) =>
           prev.map((b) =>
-            b.id === vizBlockId ? { ...b, status: 'completed' as const } : b
+            b.id === vizBlockId ? { ...b, status: 'failed' as const } : b
           )
         );
-      }, 500);
+      }
     },
     [vizBlocks, sequenceBlocks]
   );
 
-  // ==================== Process (Navigate to Viz Display) ====================
-
-  const handleProcess = useCallback(() => {
-    const completedVizBlocks = vizBlocks.filter(
-      (b) => b.status === 'completed' && b.result
-    );
-    if (completedVizBlocks.length === 0) return;
-
-    navigate('/viz-display', {
-      state: {
-        sequenceBlocks: sequenceBlocks.filter((s) => s.resultSummary),
-        vizBlocks: completedVizBlocks,
-      },
-    });
-  }, [navigate, sequenceBlocks, vizBlocks]);
+  const handleCloseVizModal = useCallback(() => {
+    setVizModalVisible(false);
+    setVizModalBlock(null);
+  }, []);
 
   // ==================== Derived State ====================
 
@@ -216,24 +198,21 @@ const WorkspacePage: React.FC = () => {
     );
   })();
 
-  const hasCompletedViz = vizBlocks.some((b) => b.status === 'completed' && b.result);
-
   return (
     <div className="workspace-root">
       {/* Header */}
       <div className="workspace-header">
-        <h1>🧬 RGCNFormer Analysis Workbench</h1>
+        <h1>🧬 mRNA Modification Analysis Workbench</h1>
         <div className="workspace-header-actions">
           <span style={{ fontSize: 12, color: 'var(--ws-text-muted)' }}>
             {sequenceBlocks.length} sequences · {vizBlocks.length} visualizations
           </span>
           <button
             className="process-btn"
-            onClick={handleProcess}
-            disabled={!hasCompletedViz}
-            title={hasCompletedViz ? 'View visualization display' : 'Run visualizations first'}
+            onClick={() => navigate('/compare')}
+            title="Compare model performance"
           >
-            Process →
+            Compare Page
           </button>
         </div>
       </div>
@@ -250,11 +229,6 @@ const WorkspacePage: React.FC = () => {
             selectedBlockId={selectedBlockId}
             onSelectBlock={setSelectedBlockId}
           />
-
-          {/* Inline Viz Results Area */}
-          {vizBlocks.some((b) => b.status === 'completed' && b.result) && (
-            <VizResultsArea vizBlocks={vizBlocks} />
-          )}
         </div>
 
         <PropertiesPanel
@@ -263,10 +237,28 @@ const WorkspacePage: React.FC = () => {
           modelBlocks={modelBlocks}
           onUpdateBlock={updateBlock}
           onRemoveBlock={removeBlock}
-          onSubmitSequence={submitSequence}
           onRunViz={runVisualization}
         />
       </div>
+
+      {/* Visualization Result Modal */}
+      <Modal
+        title={
+          vizModalBlock
+            ? `${VIZ_TYPE_REGISTRY.find((v) => v.key === vizModalBlock.vizType)?.icon || '📊'} ${
+                vizModalBlock.title || vizModalBlock.vizType
+              } - 可视化结果`
+            : '可视化结果'
+        }
+        open={vizModalVisible}
+        onCancel={handleCloseVizModal}
+        footer={null}
+        width={900}
+        destroyOnClose
+        styles={{ body: { padding: 16, height: '85vh', overflow: 'auto' } }}
+      >
+        {vizModalBlock && <VizRenderer vizBlock={vizModalBlock} />}
+      </Modal>
     </div>
   );
 };
@@ -363,20 +355,20 @@ const VizRenderer: React.FC<VizRendererProps> = ({ vizBlock }) => {
         );
       case 'gcn-graph':
         return (
-          <div style={{ border: '1px solid var(--ws-border)', borderRadius: 8, padding: 12, background: 'white' }}>
+          <div style={{ border: '1px solid var(--ws-border)', borderRadius: 8, padding: 12, background: 'white', height: '70vh', minHeight: 400 }}>
             <GcnViz data={vizBlock.result.gcn} />
           </div>
         );
       case 'gcn-message-passing':
         return (
-          <div style={{ border: '1px solid var(--ws-border)', borderRadius: 8, padding: 12, background: 'white' }}>
-            <TargetGcnViz targetNodeIdx={vizBlock.params.targetNodeIdx || 0} />
+          <div style={{ border: '1px solid var(--ws-border)', borderRadius: 8, padding: 12, background: 'white', minHeight: 500 }}>
+            <TargetGcnViz targetNodeIdx={vizBlock.params.targetNodeIdx || 0} data={vizBlock.result.gcnAggregation} />
           </div>
         );
       case 'integrated-gradients':
         return (
-          <div style={{ border: '1px solid var(--ws-border)', borderRadius: 8, padding: 12, background: 'white' }}>
-            <IntegratedGradientsViz />
+          <div style={{ border: '1px solid var(--ws-border)', borderRadius: 8, padding: 12, background: 'white', minHeight: 500 }}>
+            <IntegratedGradientsViz data={vizBlock.result.integratedGradients} />
           </div>
         );
       case 'model-graph':

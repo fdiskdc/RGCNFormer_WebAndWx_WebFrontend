@@ -1,5 +1,5 @@
 /**
- * Unified API client for RGCNFormer backend
+ * Unified API client for DCPRES backend
  * Centralized API endpoint management
  */
 
@@ -52,8 +52,9 @@ export type DatasetType = 'Human' | 'Plant' | '3Gen';
 
 export interface SubmitTaskRequest {
   userId: string;
-  dataset: DatasetType;
-  datasetIndex: number;
+  rnaSequence: string;
+  dataset?: DatasetType;
+  datasetIndex?: number;
   jobId?: string;
 }
 
@@ -75,6 +76,95 @@ export interface IntegratedGradientsRequest {
 export interface GcnAggregationRequest {
   rnaSequence: string;
   targetNodeIdx: number;
+}
+
+export interface CompareData {
+  models: Array<{
+    name: string;
+    display_name: string;
+    metrics: Record<string, number>;
+  }>;
+  metric_names: string[];
+}
+
+export interface RgcnformerHeatmapData {
+  model_name: string;
+  classes: string[];
+  metric_names: string[];
+  data: Array<Record<string, string | number>>;
+}
+
+export interface DatasetComparisonData {
+  dataset_names: string[];
+  metric_names: string[];
+  model_names: string[];
+  row_labels: string[];
+  data: Array<Record<string, string | number | null>>;
+}
+
+export interface RgcnformerLocalizationData {
+  model_name: string;
+  classes: string[];
+  class_names: string[];
+  k_labels: string[];
+  k_values: number[];
+  heatmap: number[][];
+  statistics: Array<{
+    class: string;
+    Mean: number;
+    Median: number;
+    Mode: number;
+    Mode_Ratio: number;
+    Sequence_Count: number;
+    Min_Value: number;
+    Max_Value: number;
+    Standard_Deviation: number;
+  }>;
+}
+
+export interface LocComparisonData {
+  models: Array<{
+    name: string;
+    display_name: string;
+    classes: string[];
+    class_names: string[];
+    heatmap: number[][];
+  }>;
+  k_labels: string[];
+  k_values: number[];
+  class_names: string[];
+}
+
+export interface UmapPoint {
+  u1: number;
+  u2: number;
+  label: string;
+  group: string;
+  seq: string;
+  probs: number[];
+}
+
+export interface DensityContour {
+  level: number;
+  polygons: number[][][];
+}
+
+export interface UmapMetadata {
+  n_per_class: number;
+  total_points: number;
+  valid_classes: number[];
+  color_map: Record<string, string>;
+  group_colors: Record<string, string>;
+  label_names: string[];
+  group_mapping: Record<string, number[]>;
+  label_num_samples: Record<string, number>;
+  subsampled?: boolean;
+}
+
+export interface UmapData {
+  points: UmapPoint[];
+  density_contours: Record<string, DensityContour[]>;
+  metadata: UmapMetadata;
 }
 
 // ==================== Utility Functions ====================
@@ -215,6 +305,104 @@ export async function fetchGcnAggregation(request: GcnAggregationRequest): Promi
     },
     body: JSON.stringify(request),
   });
+
+  if (!response.ok) {
+    throw await createApiError(response);
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetch model comparison data
+ */
+export async function fetchModelComparison(): Promise<CompareData> {
+  const response = await fetch(ENDPOINTS.MODEL_COMPARISON);
+
+  if (!response.ok) {
+    throw await createApiError(response);
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetch DCPRES classification heatmap data
+ */
+export async function fetchRgcnformerHeatmap(): Promise<RgcnformerHeatmapData> {
+  const response = await fetch(ENDPOINTS.RGCNFORMER_CLASSIFICATION_HEATMAP);
+
+  if (!response.ok) {
+    throw await createApiError(response);
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetch dataset comparison heatmap data
+ */
+export async function fetchDatasetComparison(): Promise<DatasetComparisonData> {
+  const response = await fetch(ENDPOINTS.DATASET_COMPARISON);
+
+  if (!response.ok) {
+    throw await createApiError(response);
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetch DCPRES localization data
+ */
+export async function fetchRgcnformerLocalization(): Promise<RgcnformerLocalizationData> {
+  const response = await fetch(ENDPOINTS.RGCNFORMER_LOCALIZATION);
+
+  if (!response.ok) {
+    throw await createApiError(response);
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetch DCPRES localization comparison data
+ */
+export async function fetchRgcnformerLocComparison(): Promise<LocComparisonData> {
+  const response = await fetch(ENDPOINTS.RGCNFORMER_LOC_COMPARISON);
+
+  if (!response.ok) {
+    throw await createApiError(response);
+  }
+
+  return response.json();
+}
+
+export async function fetchUmapData(): Promise<UmapData> {
+  const response = await fetch(ENDPOINTS.UMAP_DATA);
+
+  if (!response.ok) {
+    throw await createApiError(response);
+  }
+
+  return response.json();
+}
+
+export async function fetchCoraUmapData(): Promise<UmapData> {
+  const response = await fetch(ENDPOINTS.UMAP_CORA_DATA);
+
+  if (!response.ok) {
+    throw await createApiError(response);
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetch a random sample sequence for workspace input block
+ */
+export async function fetchSampleSequence(): Promise<{ sequence: string }> {
+  const response = await fetch(ENDPOINTS.SAMPLE_SEQUENCE);
 
   if (!response.ok) {
     throw await createApiError(response);

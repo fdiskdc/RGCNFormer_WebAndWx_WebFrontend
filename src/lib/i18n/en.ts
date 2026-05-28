@@ -149,5 +149,29 @@ export const en = {
     'Nucleotide Legend': 'Nucleotide Legend',
     'Backbone': 'Backbone',
     'Pairing': 'Pairing',
+    // Compare page translations
+    'Model Performance Comparison': 'Model Performance Comparison',
+    'Compare Page': 'Compare Page',
+    'Compare model performance': 'Compare model performance',
+    'Bar Chart': 'Bar Chart',
+    'Loading comparison data...': 'Loading comparison data...',
+    'Failed to load comparison data': 'Failed to load comparison data',
+    // New heatmap page translations
+'DCPRES Classification': 'DCPRES Classification',
+'DCPRES Classification Performance': 'DCPRES Classification Performance',
+    // Localization translations
+    'Localization': 'Localization',
+    'Localization Performance': 'Localization Performance',
+    'Reference': 'Reference',
+    // Loc Comparison translations
+    'Loc Comparison': 'Loc Comparison',
+    'Localization Model Comparison': 'Localization Model Comparison',
+    // UMAP translations
+    'UMAP Visualization': 'UMAP Visualization',
+    'CORA UMAP Visualization': 'CORA UMAP Visualization',
+    'Total points': 'Total points',
+    'Per class': 'Per class',
+    'Loading UMAP data...': 'Loading UMAP data...',
+    'Failed to load UMAP data': 'Failed to load UMAP data',
   },
 };

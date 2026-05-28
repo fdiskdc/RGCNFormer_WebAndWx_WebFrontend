@@ -401,7 +401,7 @@ const AttentionViz: React.FC<AttentionVizProps> = ({ data: propData }) => {
     return viewportElements;
   };
 
-  if (!rnaSequence) {
+  if (!propData && !rnaSequence) {
     return (
       <Alert
         message={t('Error')}

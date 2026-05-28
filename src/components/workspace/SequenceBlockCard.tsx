@@ -58,12 +58,12 @@ const SequenceBlockCard: React.FC<SequenceBlockCardProps> = ({
         </span>
         {block.boundModelId && colors && (
           <span style={{ marginLeft: 4, fontSize: 10, color: colors.accent }}>
-            → {block.boundModelId === 'model_rgcnformer' ? 'RGCNFormer' : block.boundModelId}
+            → {block.boundModelId === 'model_rgcnformer' ? 'DCPRES' : block.boundModelId}
           </span>
         )}
         {block.boundModelId && !colors && (
           <span style={{ marginLeft: 4, fontSize: 10, color: 'var(--ws-text-muted)' }}>
-            → {block.boundModelId === 'model_rgcnformer' ? 'RGCNFormer' : block.boundModelId}
+            → {block.boundModelId === 'model_rgcnformer' ? 'DCPRES' : block.boundModelId}
           </span>
         )}
       </div>

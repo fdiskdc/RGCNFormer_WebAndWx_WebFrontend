@@ -1,5 +1,5 @@
 /**
- * Centralized API configuration for RGCNFormer frontend
+ * Centralized API configuration for DCPRES frontend
  * All API-related constants should be configured here
  */
 
@@ -29,7 +29,15 @@ export const ENDPOINTS = {
     MODEL_GRAPH: `${BASE_URL}/model-graph`,
     INTEGRATED_GRADIENTS: `${BASE_URL}/integrated-gradients`,
     VISUALIZE_GCN_AGGREGATION: `${BASE_URL}/visualize-gcn-aggregation`,
+    MODEL_COMPARISON: `${BASE_URL}/model-comparison`,
+    RGCNFORMER_CLASSIFICATION_HEATMAP: `${BASE_URL}/rgcnformer-classification-heatmap`,
+    DATASET_COMPARISON: `${BASE_URL}/dataset-comparison-heatmap`,
+    RGCNFORMER_LOCALIZATION: `${BASE_URL}/rgcnformer-localization`,
+    RGCNFORMER_LOC_COMPARISON: `${BASE_URL}/rgcnformer-loc-comparison`,
+    UMAP_DATA: `${BASE_URL}/umap-data`,
+    UMAP_CORA_DATA: `${BASE_URL}/umap-cora-data`,
     PREDICT: LEGACY_PREDICT_URL,
+    SAMPLE_SEQUENCE: `${BASE_URL}/sample-sequence`,
 } as const;
 
 // ==================== Vite Proxy Configuration ====================

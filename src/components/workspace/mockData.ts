@@ -17,30 +17,32 @@ export const DEFAULT_MODELS: ModelBlock[] = [
   {
     id: 'model_rgcnformer',
     type: 'model',
-    title: 'RGCNFormer',
-    modelName: 'RGCNFormer',
+    title: 'DCPRES',
+    modelName: 'DCPRES',
     status: 'available',
     description:
       'Relation-aware Graph Convolutional Network with Transformer for RNA modification prediction. Supports 12 RNA modification types across A, C, G, U nucleotides.',
     version: 'v1.0',
   },
   {
-    id: 'model_b',
+    id: 'model_gcn',
     type: 'model',
-    title: 'Model B',
-    modelName: 'Model B',
-    status: 'disabled',
-    description: 'Coming soon. A new architecture for enhanced RNA modification detection.',
-    version: '-',
+    title: 'GCN',
+    modelName: 'GCN',
+    status: 'available',
+    description:
+      'Graph Convolutional Network for RNA modification site prediction. Leverages local graph structure of RNA sequences.',
+    version: 'v0.1',
   },
   {
-    id: 'model_c',
+    id: 'model_kmeans',
     type: 'model',
-    title: 'Model C',
-    modelName: 'Model C',
-    status: 'disabled',
-    description: 'Coming soon. Lightweight model optimized for real-time inference.',
-    version: '-',
+    title: 'K-Means',
+    modelName: 'K-Means',
+    status: 'available',
+    description:
+      'K-Means clustering for unsupervised RNA modification pattern discovery and grouping.',
+    version: 'v0.1',
   },
 ];
 
@@ -182,6 +184,71 @@ export const MOCK_GCN = (seq: string) => {
   return { nodes, edges };
 };
 
+// ==================== Mock GCN Aggregation Result ====================
+
+export const MOCK_GCN_AGGREGATION = (seq: string) => {
+  const nodeCount = Math.min(seq.length, 50);
+  const nodes = Array.from({ length: nodeCount }, (_, i) => ({
+    id: `node_${i}`,
+    data: {
+      index: i,
+      type: seq[i] || 'N',
+      name: `Nucleotide ${i}`,
+    },
+  }));
+
+  const edges: Array<{ source: string; target: string }> = [];
+  for (let i = 0; i < nodeCount - 1; i++) {
+    edges.push({ source: `node_${i}`, target: `node_${i + 1}` });
+  }
+  for (let i = 0; i < Math.min(10, nodeCount); i++) {
+    const j = Math.min(i + 4, nodeCount - 1);
+    if (i !== j) {
+      edges.push({ source: `node_${i}`, target: `node_${j}` });
+    }
+  }
+
+  const targetNode = 0;
+  const aggregationData = Array.from({ length: 3 }, (_, layer) => ({
+    layer,
+    messages: edges.slice(0, 5).map((e) => ({
+      from: parseInt(e.source.split('_')[1]),
+      strength: Math.random(),
+    })),
+  }));
+
+  return { targetNode, nodes, edges, aggregationData };
+};
+
+// ==================== Mock Integrated Gradients Result ====================
+
+export const MOCK_INTEGRATED_GRADIENTS = (seq: string) => {
+  const nodeCount = Math.min(seq.length, 50);
+  const nodes = Array.from({ length: nodeCount }, (_, i) => ({
+    id: `node_${i}`,
+    label: `${seq[i] || 'N'}${i}`,
+    data: {
+      index: i,
+      type: seq[i] || 'N',
+      name: `Nucleotide ${i}`,
+      attributionScore: (Math.random() - 0.5) * 2,
+    },
+  }));
+
+  const edges: Array<{ source: string; target: string }> = [];
+  for (let i = 0; i < nodeCount - 1; i++) {
+    edges.push({ source: `node_${i}`, target: `node_${i + 1}` });
+  }
+  for (let i = 0; i < Math.min(10, nodeCount); i++) {
+    const j = Math.min(i + 4, nodeCount - 1);
+    if (i !== j) {
+      edges.push({ source: `node_${i}`, target: `node_${j}` });
+    }
+  }
+
+  return { nodes, edges };
+};
+
 // ==================== Task Simulation ====================
 
 export interface MockTaskRunner {
@@ -248,6 +315,7 @@ export function createDefaultSequenceBlock(dataset?: DatasetType): SequenceBlock
     title: dataset || 'Human',
     dataset: dataset || 'Human',
     sequenceCount: 1000,
+    sequence: '',
     status: 'idle',
     jobId: null,
     resultSummary: null,

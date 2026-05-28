@@ -6,6 +6,7 @@
 import React from 'react';
 import type { WorkspaceBlock, SequenceBlock, ModelBlock, VisualizationBlock, DatasetType } from './types';
 import { VIZ_TYPE_REGISTRY, DATASET_OPTIONS, DATASET_LABELS } from './types';
+import { fetchSampleSequence } from '../../lib/api';
 
 interface PropertiesPanelProps {
   block: WorkspaceBlock | null;
@@ -13,7 +14,6 @@ interface PropertiesPanelProps {
   modelBlocks: ModelBlock[];
   onUpdateBlock: (id: string, updates: Partial<WorkspaceBlock>) => void;
   onRemoveBlock: (id: string) => void;
-  onSubmitSequence: (blockId: string) => void;
   onRunViz: (blockId: string) => void;
 }
 
@@ -23,7 +23,6 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   modelBlocks,
   onUpdateBlock,
   onRemoveBlock,
-  onSubmitSequence,
   onRunViz,
 }) => {
   if (!block) {
@@ -56,7 +55,6 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
             modelBlocks={modelBlocks}
             onUpdate={(updates) => onUpdateBlock(block.id, updates)}
             onRemove={() => onRemoveBlock(block.id)}
-            onSubmit={() => onSubmitSequence(block.id)}
           />
         )}
         {block.type === 'model' && (
@@ -87,7 +85,6 @@ interface SequencePropertiesProps {
   modelBlocks: ModelBlock[];
   onUpdate: (updates: Partial<SequenceBlock>) => void;
   onRemove: () => void;
-  onSubmit: () => void;
 }
 
 const SequenceProperties: React.FC<SequencePropertiesProps> = ({
@@ -95,9 +92,19 @@ const SequenceProperties: React.FC<SequencePropertiesProps> = ({
   modelBlocks,
   onUpdate,
   onRemove,
-  onSubmit,
 }) => {
-  const canSubmit = !['submitting', 'processing'].includes(block.status);
+
+  React.useEffect(() => {
+    if (!block.sequence) {
+      fetchSampleSequence()
+        .then((data) => {
+          if (data.sequence) {
+            onUpdate({ sequence: data.sequence.toUpperCase() });
+          }
+        })
+        .catch(() => {});
+    }
+  }, []);
 
   return (
     <>
@@ -131,6 +138,39 @@ const SequenceProperties: React.FC<SequencePropertiesProps> = ({
       <div className="prop-group">
         <label className="prop-label">Sequences in Dataset</label>
         <div className="prop-value">{block.sequenceCount.toLocaleString()}</div>
+      </div>
+
+      <div className="prop-divider" />
+
+      {/* Sequence Input */}
+      <div className="prop-group">
+        <label className="prop-label">RNA 序列 (ACGU)</label>
+        <textarea
+          className="prop-textarea"
+          value={block.sequence}
+          placeholder="输入 RNA 序列（仅允许 A/C/G/U，最长 1001）..."
+          maxLength={1001}
+          rows={4}
+          style={{
+            fontFamily: "'Courier New', Courier, monospace",
+            fontSize: 12,
+            lineHeight: 1.4,
+          }}
+          onChange={(e) => {
+            const filtered = e.target.value.toUpperCase().replace(/[^ACGU]/g, '');
+            onUpdate({ sequence: filtered });
+          }}
+        />
+        <div className="prop-char-counts">
+          {(['A', 'C', 'G', 'U'] as const).map((ch) => (
+            <span key={ch} className={`prop-char-tag ${ch}`}>
+              {ch}: {block.sequence.split('').filter((c) => c === ch).length}
+            </span>
+          ))}
+          <span className="prop-char-tag" style={{ background: '#ede9e5', color: '#7d7872' }}>
+            长度: {block.sequence.length}/1001
+          </span>
+        </div>
       </div>
 
       <div className="prop-divider" />
@@ -176,13 +216,6 @@ const SequenceProperties: React.FC<SequencePropertiesProps> = ({
 
       {/* Actions */}
       <div style={{ display: 'flex', gap: 8 }}>
-        <button
-          className="prop-btn prop-btn-primary"
-          onClick={onSubmit}
-          disabled={!canSubmit}
-        >
-          {['submitting', 'processing'].includes(block.status) ? 'Processing...' : 'Submit'}
-        </button>
         <button
           className="prop-btn"
           style={{ background: '#f0dede', color: 'var(--ws-status-error)' }}
@@ -453,7 +486,7 @@ const VisualizationProperties: React.FC<VisualizationPropertiesProps> = ({
           onClick={onRun}
           disabled={!block.boundSequenceId || block.status === 'running'}
         >
-          {block.status === 'running' ? 'Running...' : 'Run'}
+          {block.status === 'running' ? 'Running...' : 'Apply'}
         </button>
         <button
           className="prop-btn"

@@ -125,7 +125,7 @@ export const zh = {
     'Normal Edge': '普通边',
     'Active Edge (Animated)': '活跃边（动画）',
     'GCN Message Passing': 'GCN 消息传递',
-    'Target GCN': '目标 GCN',
+    'Target GCN': 'GCN 消息传递',
     'Target Node Index': '目标节点索引',
     'Enter target node index': '输入目标节点索引',
     'Range': '范围',
@@ -149,5 +149,29 @@ export const zh = {
     'Nucleotide Legend': '核苷酸图例',
     'Backbone': '主链',
     'Pairing': '配对',
+    // Compare page translations
+    'Model Performance Comparison': '模型性能比较',
+    'Compare Page': '模型比较',
+    'Compare model performance': '比较模型性能',
+    'Bar Chart': '柱状图',
+    'Loading comparison data...': '正在加载比较数据...',
+    'Failed to load comparison data': '加载比较数据失败',
+    // New heatmap page translations
+'DCPRES Classification': 'DCPRES 分类性能',
+'DCPRES Classification Performance': 'DCPRES 分类性能详情',
+    // Localization translations
+    'Localization': '定位性能',
+    'Localization Performance': '定位性能详情',
+    'Reference': '参考',
+    // Loc Comparison translations
+    'Loc Comparison': '定位比较',
+    'Localization Model Comparison': '定位模型比较',
+    // UMAP translations
+    'UMAP Visualization': 'UMAP 可视化',
+    'CORA UMAP Visualization': 'CORA UMAP 可视化',
+    'Total points': '总点数',
+    'Per class': '每类',
+    'Loading UMAP data...': '正在加载 UMAP 数据...',
+    'Failed to load UMAP data': '加载 UMAP 数据失败',
   },
 };

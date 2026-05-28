@@ -1,73 +1,261 @@
-# React + TypeScript + Vite
+# RGCNFormer Web Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A React-based web frontend for DCPRES (Deep learning Context-aware Predictor of RNA modification sites), providing interactive visualization and analysis of RNA modification sites using graph neural networks.
 
-Currently, two official plugins are available:
+[[中文](README_zh.md)] [[日本語](README_ja.md)] [[Русский](README_ru.md)]
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## How to Start
 
-## React Compiler
+```bash
+# Install dependencies
+npm install
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+# Development mode
+npm run dev
 
-## Expanding the ESLint configuration
+# Production build
+npm run build
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Lint
+npm run lint
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Access `http://localhost:5173` (default port)
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Project Architecture
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+src/
+├── pages/                    # Page components
+│   ├── WorkspacePage.tsx     # Main analysis workbench
+│   ├── MainPage.tsx          # Legacy submission page
+│   ├── ResultsPage.tsx       # Task results page
+│   ├── ComparePage.tsx       # Model comparison page
+│   ├── VizDisplayPage.tsx   # Full-screen viz display
+│   └── *.tsx                # Visualization components
+├── components/               # Shared components
+│   └── workspace/           # Workspace components
+├── lib/                     # Utilities
+│   ├── api.ts               # API client
+│   └── i18n/                # Internationalization
+└── context/                 # React Context
+```
+
+## Pages
+
+### 1. Workspace (`/`)
+
+Single-page puzzle-style analysis workbench serving as the root route.
+
+**Features:**
+- Left: Sequence & visualization library (drag & drop)
+- Center: Canvas workspace
+- Right: Properties panel for binding config
+
+**Input:**
+- RNA sequence (added via library or bound to model)
+- Dataset type (Human / Plant / 3Gen)
+- Visualization type selection
+
+**Output:**
+- Classification results (ClassificationViz)
+- Attention weights (AttentionViz)
+- GCN graph structure (GcnViz)
+- GCN message passing (TargetGcnViz)
+- Integrated Gradients
+
+---
+
+### 2. Legacy (`/legacy`)
+
+Form-based RNA sequence submission interface.
+
+**Features:**
+- Dataset selection
+- Dataset index
+- Server selection
+
+**Input:**
+- Dataset: Human | Plant | 3Gen
+- Dataset Index: Numeric index
+- Server: server1 | server2 | server3
+
+**Output:**
+- Redirect to ResultsPage after submission (`/results/{jobId}`)
+
+---
+
+### 3. Results (`/results/:jobId`)
+
+Polling-based result display page with multiple visualization tabs.
+
+**Features:**
+- Task status polling (3 second interval, 5 minute timeout)
+- Six visualization types
+
+**Input:**
+- Job ID (URL parameter)
+
+**Output:**
+- Classification Tree
+- Attention (attention weights)
+- GCN Graph (graph structure)
+- GCN Message Passing (animation)
+- Integrated Gradients
+
+---
+
+### 4. Compare (`/compare`)
+
+Model performance comparison with multiple visualization modes.
+
+**Features:**
+- Desktop/mobile responsive layout
+- Five visualization modes
+
+**Input:**
+- No user input, data fetched from backend
+
+**Output:**
+- Bar Chart (model performance)
+- DCPRES Classification Heatmap
+- Localization (localization performance)
+- Loc Comparison (localization model comparison)
+- UMAP Visualization (dimensionality reduction)
+
+---
+
+### 5. Viz Display (`/viz-display`)
+
+Full-screen display for completed visualization results.
+
+**Features:**
+- Full-screen display of visualization results generated by workspace
+- Display data source information
+
+**Input:**
+- Sequence blocks and Visualization blocks (passed via state)
+
+**Output:**
+- Complete display of each visualization component
+
+---
+
+### 6. Standalone Visualization Pages
+
+| Route | Component | Description |
+|--------------|------------------|-------------------|
+| `/classification` | ClassificationViz | Classification results visualization |
+| `/attention` | AttentionViz | Attention weights visualization |
+| `/gcn` | GcnViz | GCN graph structure |
+| `/target-gcn` | TargetGcnViz | GCN message passing |
+| `/integrated-gradients` | IntegratedGradientsViz | Integrated Gradients |
+| `/model-viz` | ModelViz | Model architecture diagram |
+
+## Backend Requirements
+
+### API Endpoint
+
+Default: `/rgcnformer/api/v1` (configurable via `VITE_API_BASE_URL`)
+
+### Backend Proxy
+
+Dev proxy target: `http://localhost:8000`
+Configurable via `VITE_PROXY_TARGET`
+
+### Required API Endpoints
+
+| Endpoint | Method | Function |
+|----------------|---------------|-------------------|
+| `/submit-task` | POST | Submit analysis task |
+| `/results/{jobId}` | GET | Get task results |
+| `/model-graph` | GET | Get model graph structure |
+| `/integrated-gradients` | POST | Calculate Integrated Gradients |
+| `/visualize-gcn-aggregation` | POST | Get GCN aggregation data |
+| `/model-comparison` | GET | Get model comparison data |
+| `/rgcnformer-classification-heatmap` | GET | DCPRES classification heatmap |
+| `/rgcnformer-localization` | GET | Localization performance data |
+| `/rgcnformer-loc-comparison` | GET | Localization comparison data |
+| `/umap-data` | GET | UMAP dimensionality reduction data |
+| `/sample-sequence` | GET | Get sample sequence |
+
+## Input & Output
+
+### Main Input
+
+| Input | Type | Description |
+|---------------|-------------|---------------------|
+| RNA Sequence | string | RNA nucleotide sequence (A, U, G, C) |
+| Dataset | enum | Human / Plant / 3Gen |
+| Dataset Index | number | Index within dataset |
+| Target Class ID | number | Integrated Gradients target class |
+| Target Node Index | number | GCN message passing target node |
+
+### Main Output
+
+| Output | Format | Description |
+|----------------|--------------|---------------------|
+| Classification | tree/graph | Modification site classification results |
+| Attention | array | Attention weight data |
+| GCN Graph | nodes/edges | Graph structure data |
+| GCN Aggregation | animation | Message passing animation |
+| Integrated Gradients | scores | Node attribute scores |
+| Model Metrics | percentages | Model performance metrics |
+
+## Internationalization
+
+Project supports English/Chinese switching via `LanguageContext`.
+
+**Usage:**
+
+```tsx
+import { useTranslation } from './lib/i18n/LanguageContext';
+
+const { t, changeLanguage, language } = useTranslation();
+
+// Switch language
+changeLanguage('en');
+changeLanguage('zh');
+
+// Translate
+t('Submit'); // -> "提交" or "Submit"
+```
+
+**Translation Files:**
+- `src/lib/i18n/en.ts` - English
+- `src/lib/i18n/zh.ts` - Chinese
+
+Language toggle button is available on each page (top-right or bottom-right corner).
+
+## Tech Stack
+
+- **React 19** + TypeScript
+- **Vite 7** - Build tool
+- **Ant Design 6** - UI component library
+- **TanStack Query 5** - Data fetching and caching
+- **React Router 7** - Routing
+- **ECharts** - Chart visualization
+- **@antv/g6** - Graph visualization
+- **Three.js** + React Three Fiber - 3D visualization
+- **d3** - Data processing
+
+## Environment Variables
+
+| Variable | Default | Description |
+|----------------|------------------|---------------------|
+| `VITE_API_BASE_URL` | `/rgcnformer/api/v1` | API base URL |
+| `VITE_PROXY_TARGET` | `http://localhost:8000` | Dev proxy target |
+| `VITE_LEGACY_PREDICT_URL` | `http://localhost:5000` | Legacy prediction endpoint |
+
+## Notes
+
+1. Workspace page uses mock data for demo, actual usage requires backend support
+2. ResultsPage polling interval is 3 seconds, timeout is 5 minutes
+3. ComparePage is desktop/mobile responsive
+4. All visualization pages support English/Chinese switching
+
+---
+
+**Related Papers:**
+- [DCPRES](https://doi.org/10.3390/app15158626)
+- [RGCNFormer](https://doi.org/10.3390/rs17142354)

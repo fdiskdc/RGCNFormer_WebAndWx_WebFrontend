@@ -22,7 +22,7 @@ import { submitTask, generateJobId, type DatasetType } from '../lib/api';
 const { Option } = Select;
 
 const MainPage: React.FC = () => {
-    const [localRnaSequence, setLocalRnaSequence] = useState("");
+    const [localRnaSequence] = useState("");
     const [localDataset, setLocalDataset] = useState<DatasetType>('Human');
     const [localDatasetIndex, setLocalDatasetIndex] = useState(0);
 
@@ -40,6 +40,7 @@ const MainPage: React.FC = () => {
 
             const data = await submitTask({
                 userId: 'user1',
+                rnaSequence: localRnaSequence,
                 dataset: localDataset,
                 datasetIndex: localDatasetIndex,
                 jobId: generateJobId(),

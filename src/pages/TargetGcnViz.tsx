@@ -34,9 +34,10 @@ interface AggregationResponse {
 
 interface TargetGcnVizProps {
   targetNodeIdx?: number;
+  data?: AggregationResponse;
 }
 
-const TargetGcnViz: React.FC<TargetGcnVizProps> = ({ targetNodeIdx: propTargetNodeIdx }) => {
+const TargetGcnViz: React.FC<TargetGcnVizProps> = ({ targetNodeIdx: propTargetNodeIdx, data: propData }) => {
   const { t } = useTranslation();
   const { rnaSequence } = useRna();
 
@@ -163,27 +164,102 @@ const TargetGcnViz: React.FC<TargetGcnVizProps> = ({ targetNodeIdx: propTargetNo
     }
   };
 
+  // Process propData when provided (for Modal usage)
+  useEffect(() => {
+    if (propData) {
+      const data = propData;
+      setAggregationData(data);
+      setTargetNode(data.targetNode);
+
+      const nodes = data.nodes.map(node => ({
+        id: node.id,
+        ...node.data,
+        label: `${node.data?.type}${node.data?.index}`,
+      }));
+
+      const links = data.edges.map(edge => ({
+        source: edge.source,
+        target: edge.target,
+      }));
+
+      setGraphData({ nodes, links });
+
+      // BFS to find N-hop neighbors
+      const nHops = data.aggregationData.length;
+      const distances = new Map<number, number>();
+      const queue: [number, number][] = [[data.targetNode, 0]];
+      const visited = new Set<number>([data.targetNode]);
+      distances.set(data.targetNode, 0);
+
+      const adjacencyList = new Map<number, number[]>();
+      links.forEach(link => {
+        const sourceNode = nodes.find(n => n.id === link.source);
+        const targetNodeObj = nodes.find(n => n.id === link.target);
+        if (sourceNode && targetNodeObj && sourceNode.index !== undefined && targetNodeObj.index !== undefined) {
+          if (!adjacencyList.has(sourceNode.index)) adjacencyList.set(sourceNode.index, []);
+          if (!adjacencyList.has(targetNodeObj.index)) adjacencyList.set(targetNodeObj.index, []);
+          adjacencyList.get(sourceNode.index)!.push(targetNodeObj.index);
+          adjacencyList.get(targetNodeObj.index)!.push(sourceNode.index);
+        }
+      });
+
+      let head = 0;
+      while (head < queue.length) {
+        const [currentNode, distance] = queue[head++];
+        if (distance >= nHops) continue;
+        const neighbors = adjacencyList.get(currentNode) || [];
+        for (const neighbor of neighbors) {
+          if (!visited.has(neighbor)) {
+            visited.add(neighbor);
+            distances.set(neighbor, distance + 1);
+            queue.push([neighbor, distance + 1]);
+          }
+        }
+      }
+      setHopDistances(distances);
+
+      let maxDist = 0;
+      distances.forEach((dist) => {
+        if (dist > maxDist) maxDist = dist;
+      });
+      setMaxHopDistance(maxDist);
+
+      const neighborIndices = new Set<number>();
+      distances.forEach((dist, nodeIdx) => {
+        if (dist > 0) {
+          neighborIndices.add(nodeIdx);
+        }
+      });
+      neighborNodeIndicesRef.current = neighborIndices;
+
+      setHasComputed(true);
+    }
+  }, [propData]);
+
   const onNodeClick = useCallback((node: any) => {
     setInputTargetNodeIdx(node.index);
   }, []);
 
-  // Initial camera focus on target node
+  // Initial camera focus on target node after graph settles
   useEffect(() => {
     if (hasComputed && aggregationData && graphRef.current && graphData.nodes.length > 0) {
-      const targetNodeData = graphData.nodes.find(n => n.index === aggregationData.targetNode);
-      
-      if (targetNodeData && targetNodeData.x !== undefined && targetNodeData.y !== undefined && targetNodeData.z !== undefined) {
-        // Focus camera on target node with smooth animation
-        graphRef.current.cameraPosition(
-          { x: targetNodeData.x + 100, y: targetNodeData.y + 100, z: targetNodeData.z + 100 },
-          targetNodeData,
-          1000
+      const timer = setTimeout(() => {
+        const targetNodeData = graphData.nodes.find(n => n.index === aggregationData.targetNode);
+        const centerX = targetNodeData?.x ?? 0;
+        const centerY = targetNodeData?.y ?? 0;
+        const centerZ = targetNodeData?.z ?? 0;
+
+        graphRef.current?.cameraPosition(
+          { x: centerX + 200, y: centerY + 150, z: centerZ + 200 },
+          { x: centerX, y: centerY, z: centerZ },
+          0
         );
-      }
+      }, 500);
+      return () => clearTimeout(timer);
     }
   }, [hasComputed, aggregationData, graphData]);
 
-  if (!rnaSequence) {
+  if (!propData && !rnaSequence) {
     return (
       <Alert
         message={t('Error')}
@@ -231,28 +307,31 @@ const TargetGcnViz: React.FC<TargetGcnVizProps> = ({ targetNodeIdx: propTargetNo
         />
       )}
 
+      {!propData && (
       <Card title={t('GCN Message Passing')} style={{ marginBottom: 0 }}>
         <Space direction="vertical" style={{ width: '100%' }} size="middle">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
             <Text strong>{t('Target Node Index')}:</Text>
             <InputNumber
               min={0}
-              max={rnaSequence.length - 1}
+              max={rnaSequence ? rnaSequence.length - 1 : 100}
               value={inputTargetNodeIdx}
               onChange={(value) => setInputTargetNodeIdx(value)}
               placeholder={t('Enter target node index')}
               style={{ width: 200 }}
             />
-            <Text type="secondary">({t('Range')}: 0 - {rnaSequence.length - 1})</Text>
-            <Button
-              type="primary"
-              icon={<SearchOutlined />}
-              onClick={handleCompute}
-              loading={loading}
-              disabled={inputTargetNodeIdx === null}
-            >
-              {t('Compute')}
-            </Button>
+            <Text type="secondary">({t('Range')}: 0 - {rnaSequence ? rnaSequence.length - 1 : '?'})</Text>
+            {!hasComputed && (
+              <Button
+                type="primary"
+                icon={<SearchOutlined />}
+                onClick={handleCompute}
+                loading={loading}
+                disabled={inputTargetNodeIdx === null}
+              >
+                {t('Compute')}
+              </Button>
+            )}
             {targetNode !== null && (
               <Text type="secondary" style={{ marginLeft: '8px' }}>
                 {t('Current selected')} {t('Target Node')}: {targetNode}
@@ -269,6 +348,7 @@ const TargetGcnViz: React.FC<TargetGcnVizProps> = ({ targetNodeIdx: propTargetNo
           </Text>
         </Space>
       </Card>
+      )}
 
       {aggregationData && hasComputed && (
         <>
@@ -452,6 +532,11 @@ const TargetGcnViz: React.FC<TargetGcnVizProps> = ({ targetNodeIdx: propTargetNo
               backgroundColor={COLORS.background}
               width={undefined}
               height={undefined}
+              onEngineStop={() => {
+                if (graphRef.current) {
+                  graphRef.current.zoomToFit(400);
+                }
+              }}
             />
           </div>
 

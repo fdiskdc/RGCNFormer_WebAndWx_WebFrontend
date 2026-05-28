@@ -31,6 +31,7 @@ export default defineConfig(({ mode }) => {
         '/rgcnformer/api': {
           target: proxyTarget,
           changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/rgcnformer\/api/, '/api'),
         },
       },
     },

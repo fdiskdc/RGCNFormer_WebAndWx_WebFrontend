@@ -29,6 +29,7 @@ export interface SequenceBlock {
   title: string;
   dataset: DatasetType;
   sequenceCount: number;
+  sequence: string;
   status: SequenceStatus;
   jobId: string | null;
   resultSummary: {
