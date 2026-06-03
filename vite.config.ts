@@ -2,7 +2,7 @@
  * @Author: Chao Deng && chaodeng987@outlook.com
  * @Date: 2026-06-03 14:37:46
  * @LastEditors: Chao Deng && chaodeng987@outlook.com
- * @LastEditTime: 2026-06-03 15:06:47
+ * @LastEditTime: 2026-06-03 16:44:27
  * @FilePath: /vscode20260424/RGCNFormer_WebAndWx_WebFrontend/vite.config.ts
  * @Description: 
  * 那只是一场游戏一场梦
@@ -67,6 +67,7 @@ export default defineConfig(({ mode }) => {
     base: '/rgcnformer/',
     plugins: [react()],
     server: {
+      host: '0.0.0.0',  // 👈 添加这一行，监听所有网络接口
       proxy: {
         // 将所有 /rgcnformer/api 开头的请求代理到后端
         '/rgcnformer/api': {
