@@ -10,9 +10,11 @@ interface CompareBarChartProps {
 }
 
 const MORANDI_COLORS = [
-  '#B8A9C9',
-  '#A3B5A6',
-  '#C4A882',
+  '#B8A9C9',  // DCPRES - muted purple
+  '#A3B5A6',  // ProCSE - sage green
+  '#C4A882',  // GCN - warm sand
+  '#D4A0A0',  // K-Means - dusty rose
+  '#8BA4B8',  // DSCPS - steel blue
 ];
 
 const CompareBarChart: React.FC<CompareBarChartProps> = ({ data }) => {
