@@ -1,4 +1,46 @@
 /**
+ * api.ts - 统一 API 客户端 / Unified API client
+ *
+ * 封装后端 HTTP 请求:基于 fetch 包装,统一错误处理、jobId 生成(uuidv7)、ResultData
+ * 解析。支持提交任务、轮询结果、获取 IG / UMAP / 注意力 / 模型图等可视化数据。 /
+ * Backend HTTP client: fetch-based wrapper with unified error handling, jobId
+ * generation (uuidv7), and ResultData parsing. Supports task submission, result
+ * polling, IG/UMAP/attention/model-graph visualization endpoints.
+ *
+ * 功能模块 / Modules:
+ * - ResultData / SubmitTaskResponse 等 TS 类型 / TS types
+ * - submitTask(sequence): 提交推理,返回 jobId / submit inference, return jobId
+ * - getResult(jobId, onProgress): 轮询结果 / poll for result
+ * - getModelGraph() / getIntegratedGradients() / getUMAPData() / getAttention(): 可视化数据 / viz data
+ * - 错误处理:HTTP 错误、解析错误、超时 / error handling
+ *
+ * 输入 / Inputs:
+ * - sequence: string - RNA 序列 / RNA sequence
+ * - jobId: string - 任务 ID(由 uuidv7 生成)/ jobId (uuidv7)
+ * - 可视化参数(targetClassId 等)/ viz params
+ *
+ * 输出 / Outputs:
+ * - Promise<ResultData> - 后端结果 / backend result
+ * - Promise<Blob/JSON> - 可视化数据 / viz data
+ *
+ * 数据流 / Data Flow:
+ * 1. submitTask → POST ENDPOINTS.SUBMIT_TASK → 返回 jobId / submit, get jobId
+ * 2. getResult 轮询 ENDPOINTS.GET_RESULT(jobId) → 拿到 ResultData / poll
+ * 3. 用户切到可视化 tab → 调对应 viz 端点 / Switch tab → call viz endpoint
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: ../../config/api.config(ENDPOINTS、DEFAULT_HEADERS)、./uuidv7
+ * - 被调用 / Called by: 各 pages(LocalizationViz、LocComparisonViz、CompareBarChart 等)
+ *
+ * 使用示例 / Usage Example:
+ *     import { submitTask, getResult } from '@/lib/api';
+ *     const { jobId } = await submitTask('ACGU...');
+ *     const result = await getResult(jobId);
+ *
+ * 作者 / Author: 项目组 / Project Team
+ * 版本 / Version: 1.0
+ */
+/**
  * Unified API client for DCPRES backend
  * Centralized API endpoint management
  */
@@ -37,6 +79,8 @@ export interface ResultData {
       target: string;
     }>;
   };
+  integratedGradients?: any;
+  gcnAggregation?: any;
   error?: string;
   errorType?: string;
   step?: string;
@@ -103,36 +147,17 @@ export interface DatasetComparisonData {
 }
 
 export interface RgcnformerLocalizationData {
-  model_name: string;
-  classes: string[];
-  class_names: string[];
+  model_names: string[];
   k_labels: string[];
   k_values: number[];
   heatmap: number[][];
-  statistics: Array<{
-    class: string;
-    Mean: number;
-    Median: number;
-    Mode: number;
-    Mode_Ratio: number;
-    Sequence_Count: number;
-    Min_Value: number;
-    Max_Value: number;
-    Standard_Deviation: number;
-  }>;
 }
 
 export interface LocComparisonData {
-  models: Array<{
-    name: string;
-    display_name: string;
-    classes: string[];
-    class_names: string[];
-    heatmap: number[][];
-  }>;
+  model_names: string[];
   k_labels: string[];
   k_values: number[];
-  class_names: string[];
+  heatmap: number[][];
 }
 
 export interface UmapPoint {
@@ -403,6 +428,72 @@ export async function fetchCoraUmapData(): Promise<UmapData> {
  */
 export async function fetchSampleSequence(): Promise<{ sequence: string }> {
   const response = await fetch(ENDPOINTS.SAMPLE_SEQUENCE);
+
+  if (!response.ok) {
+    throw await createApiError(response);
+  }
+
+  return response.json();
+}
+
+// ==================== Attention Visualization Types ====================
+
+export interface AttentionComparisonSample {
+  index: number;
+  models: Record<string, {
+    attention: number[][];
+    class_indices: number[];
+    class_names: string[];
+    true_sites: number[];
+  }>;
+}
+
+export interface AttentionComparisonData {
+  samples: AttentionComparisonSample[];
+  class_names: string[];
+  model_names: string[];
+}
+
+export interface AttentionClassData {
+  index: number;
+  name: string;
+  probability: number;
+  attention: number[];
+}
+
+export interface AttentionVisualizationData {
+  sequence_length: number;
+  left_padding: number;
+  classes: AttentionClassData[];
+  class_names: string[];
+}
+
+// ==================== Attention Visualization Functions ====================
+
+/**
+ * Fetch pre-computed attention comparison data for 4 models
+ */
+export async function fetchAttentionComparison(): Promise<AttentionComparisonData> {
+  const response = await fetch(ENDPOINTS.ATTENTION_COMPARISON);
+
+  if (!response.ok) {
+    throw await createApiError(response);
+  }
+
+  return response.json();
+}
+
+/**
+ * Fetch attention visualization for a user-submitted sequence
+ */
+export async function fetchAttentionVisualization(request: { rnaSequence: string }): Promise<AttentionVisualizationData> {
+  const response = await fetch(ENDPOINTS.ATTENTION_VISUALIZATION, {
+    method: 'POST',
+    headers: {
+      ...DEFAULT_HEADERS,
+    },
+    body: JSON.stringify(request),
+  });
 
   if (!response.ok) {
     throw await createApiError(response);
