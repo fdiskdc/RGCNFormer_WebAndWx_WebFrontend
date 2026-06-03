@@ -3,12 +3,14 @@
  * Receives completed visualization data from the workspace and renders all results.
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import type { SequenceBlock, VisualizationBlock } from '../components/workspace/types';
+import { useRna, type ClassificationResult } from '../context/RnaContext';
 
 import ClassificationViz from './ClassificationViz';
 import AttentionViz from './AttentionViz';
+import AttentionDistributionViz from './AttentionDistributionViz';
 import GcnViz from './GcnViz';
 import TargetGcnViz from './TargetGcnViz';
 import IntegratedGradientsViz from './IntegratedGradientsViz';
@@ -19,10 +21,51 @@ interface VizDisplayState {
   vizBlocks: VisualizationBlock[];
 }
 
+// Helper to extract leaf classification results from tree structure
+function extractClassificationResults(tree: any): ClassificationResult[] {
+  const results: ClassificationResult[] = [];
+
+  function traverse(node: any) {
+    if (!node) return;
+
+    // If this is a leaf node (no children) and has isPredicted
+    if (!node.children || node.children.length === 0) {
+      results.push({
+        name: node.name,
+        value: node.isPredicted ? 1 : 0,
+      });
+    } else {
+      // Recursively traverse children
+      for (const child of node.children) {
+        traverse(child);
+      }
+    }
+  }
+
+  traverse(tree);
+  return results;
+}
+
 const VizDisplayPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const state = location.state as VizDisplayState | null;
+  const { setRnaSequence, setClassificationResults } = useRna();
+
+  // Set sequence in RnaContext from sequenceBlocks
+  useEffect(() => {
+    if (state?.sequenceBlocks && state.sequenceBlocks.length > 0) {
+      const firstSeqBlock = state.sequenceBlocks[0];
+      if (firstSeqBlock.sequence) {
+        setRnaSequence(firstSeqBlock.sequence);
+      }
+      if (firstSeqBlock.resultSummary?.classification) {
+        // Extract classification results from tree structure
+        const results = extractClassificationResults(firstSeqBlock.resultSummary.classification);
+        setClassificationResults(results);
+      }
+    }
+  }, [state, setRnaSequence, setClassificationResults]);
 
   if (!state || !state.vizBlocks || state.vizBlocks.length === 0) {
     return (
@@ -171,6 +214,11 @@ interface VizDisplayContentProps {
 
 const VizDisplayContent: React.FC<VizDisplayContentProps> = ({ vizBlock }) => {
   const vizType = vizBlock.vizType;
+
+  // attention-score fetches its own data via useRna(), doesn't need vizBlock.result
+  if (vizType === 'attention-score') {
+    return <AttentionDistributionViz />;
+  }
 
   if (!vizBlock.result) {
     return <div style={{ color: '#a8a29e', textAlign: 'center', padding: 40 }}>No result data</div>;

@@ -10,12 +10,13 @@ import DatasetComparisonHeatmap from './DatasetComparisonHeatmap';
 import LocalizationViz from './LocalizationViz';
 import LocComparisonViz from './LocComparisonViz';
 import UMapViz from './UMapViz';
+import AttentionComparisonViz from './AttentionComparisonViz';
 
 const { Content, Sider } = Layout;
 
 const DESKTOP_BREAKPOINT = 768;
 
-type VizType = 'bar' | 'heatmap' | 'localization' | 'locComparison' | 'umap' | 'coraUmap' | 'datasetComparison';
+type VizType = 'bar' | 'heatmap' | 'localization' | 'locComparison' | 'umap' | 'coraUmap' | 'datasetComparison' | 'attentionComparison';
 
 const MORANDI = {
   sidebarBg: '#9E9288',
@@ -150,6 +151,8 @@ const ComparePage: React.FC = () => {
         return <UMapViz data={coraUmapData} />;
       case 'datasetComparison':
         return <DatasetComparisonHeatmap data={datasetComparisonData} />;
+      case 'attentionComparison':
+        return <AttentionComparisonViz />;
       default:
         return null;
     }
@@ -327,10 +330,22 @@ const ComparePage: React.FC = () => {
         style={{
           ...cardBase(selectedVizType === 'bar'),
           marginTop: 4,
+          marginBottom: 4,
         }}
       >
         <span style={{ fontSize: 16 }}>📊</span>
         {!siderCollapsed && <span>{t('Bar Chart')}</span>}
+      </div>
+
+      <div
+        onClick={() => setSelectedVizType('attentionComparison')}
+        style={{
+          ...cardBase(selectedVizType === 'attentionComparison'),
+          marginBottom: 4,
+        }}
+      >
+        <span style={{ fontSize: 16 }}>🧠</span>
+        {!siderCollapsed && <span>{t('Attention Comparison')}</span>}
       </div>
     </div>
   );
@@ -401,10 +416,20 @@ const ComparePage: React.FC = () => {
         onClick={() => setSelectedVizType('bar')}
         style={{
           ...cardBase(selectedVizType === 'bar'),
+          marginBottom: 8,
         }}
       >
         <span style={{ fontSize: 16 }}>📊</span>
         <span>{t('Bar Chart')}</span>
+      </div>
+      <div
+        onClick={() => setSelectedVizType('attentionComparison')}
+        style={{
+          ...cardBase(selectedVizType === 'attentionComparison'),
+        }}
+      >
+        <span style={{ fontSize: 16 }}>🧠</span>
+        <span>{t('Attention Comparison')}</span>
       </div>
     </>
   );
@@ -457,11 +482,11 @@ const ComparePage: React.FC = () => {
             </div>
           </div>
         </Sider>
-        <Layout style={{ marginLeft: siderCollapsed ? 80 : 200, transition: 'all 0.2s' }}>
+        <Layout style={{ marginLeft: siderCollapsed ? 80 : 200, transition: 'all 0.2s', height: '100vh', overflow: 'hidden' }}>
           <Content style={{
             padding: 20,
             overflow: 'auto',
-            minHeight: '100vh',
+            height: '100%',
             backgroundColor: MORANDI.contentBg,
           }}>
             <h1 style={{
@@ -490,13 +515,14 @@ const ComparePage: React.FC = () => {
   }
 
   return (
-    <Layout style={{ minHeight: '100vh', backgroundColor: MORANDI.contentBg }}>
+    <Layout style={{ height: '100vh', backgroundColor: MORANDI.contentBg, overflow: 'hidden' }}>
       <div style={{
         backgroundColor: MORANDI.sidebarBg,
         padding: '16px 20px',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        flexShrink: 0,
       }}>
         <div style={{
           color: '#fff',
@@ -532,7 +558,7 @@ const ComparePage: React.FC = () => {
       <Content style={{
         padding: 16,
         overflow: 'auto',
-        paddingBottom: 60,
+        flex: 1,
       }}>
         {mobileCards}
         <div style={{

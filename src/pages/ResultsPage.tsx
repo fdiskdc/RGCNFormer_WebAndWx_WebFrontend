@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { MenuOutlined, ClusterOutlined, EyeOutlined, PartitionOutlined, LineChartOutlined, AimOutlined } from '@ant-design/icons';
+import { MenuOutlined, ClusterOutlined, EyeOutlined, PartitionOutlined, LineChartOutlined, AimOutlined, BarChartOutlined } from '@ant-design/icons';
 import ClassificationViz from './ClassificationViz';
 import AttentionViz from './AttentionViz';
+import AttentionDistributionViz from './AttentionDistributionViz';
 import GcnViz from './GcnViz';
 import TargetGcnViz from './TargetGcnViz';
 import IntegratedGradientsViz from './IntegratedGradientsViz';
@@ -11,7 +12,7 @@ import { fetchResult, isProcessing, isCompleted, isFailed, getErrorMessage } fro
 import { useTranslation } from '../lib/i18n/LanguageContext';
 import './ResultsPage.css';
 
-type ViewType = 'classification' | 'attention' | 'gcn' | 'target-gcn' | 'integrated-gradients' | 'model-viz';
+type ViewType = 'classification' | 'attention' | 'attention-score' | 'gcn' | 'target-gcn' | 'integrated-gradients' | 'model-viz';
 
 const POLL_INTERVAL = 3000; // 3 seconds
 const TIMEOUT = 300000; // 5 minutes
@@ -131,6 +132,12 @@ const ResultsPage: React.FC = () => {
       label: t('Attention'),
       icon: <EyeOutlined />,
       component: <AttentionViz data={resultData.attention} />
+    },
+    {
+      key: 'attention-score',
+      label: t('Attention Score'),
+      icon: <BarChartOutlined />,
+      component: <AttentionDistributionViz />
     },
     {
       key: 'gcn',

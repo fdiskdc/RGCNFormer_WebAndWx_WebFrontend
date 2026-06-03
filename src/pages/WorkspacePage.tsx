@@ -3,10 +3,11 @@
  * Replaces the old MainPage as the root route.
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Modal, message } from 'antd';
 import './WorkspacePage.css';
+import { useRna } from '../context/RnaContext';
 import PuzzleLibrary from '../components/workspace/PuzzleLibrary';
 import WorkspaceCanvas from '../components/workspace/WorkspaceCanvas';
 import PropertiesPanel from '../components/workspace/PropertiesPanel';
@@ -33,9 +34,11 @@ import GcnViz from './GcnViz';
 import TargetGcnViz from './TargetGcnViz';
 import IntegratedGradientsViz from './IntegratedGradientsViz';
 import ModelViz from './ModelViz';
+import AttentionDistributionViz from './AttentionDistributionViz';
 
 const WorkspacePage: React.FC = () => {
   const navigate = useNavigate();
+  const { setRnaSequence } = useRna();
 
   // ==================== State ====================
   const [sequenceBlocks, setSequenceBlocks] = useState<SequenceBlock[]>([]);
@@ -44,6 +47,14 @@ const WorkspacePage: React.FC = () => {
   const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [vizModalVisible, setVizModalVisible] = useState(false);
   const [vizModalBlock, setVizModalBlock] = useState<VisualizationBlock | null>(null);
+
+  // Sync RNA sequence to context whenever sequence blocks change
+  useEffect(() => {
+    const firstSeqWithSequence = sequenceBlocks.find((b) => b.sequence);
+    if (firstSeqWithSequence) {
+      setRnaSequence(firstSeqWithSequence.sequence);
+    }
+  }, [sequenceBlocks, setRnaSequence]);
 
   // ==================== Block Operations ====================
 
@@ -375,6 +386,12 @@ const VizRenderer: React.FC<VizRendererProps> = ({ vizBlock }) => {
         return (
           <div style={{ border: '1px solid var(--ws-border)', borderRadius: 8, padding: 12, background: 'white' }}>
             <ModelViz />
+          </div>
+        );
+      case 'attention-score':
+        return (
+          <div style={{ border: '1px solid var(--ws-border)', borderRadius: 8, padding: 12, background: 'white' }}>
+            <AttentionDistributionViz />
           </div>
         );
       default:
