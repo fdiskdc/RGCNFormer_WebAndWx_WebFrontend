@@ -1,4 +1,41 @@
 /**
+ * types.ts - Workspace 块类型定义 / Workspace block type definitions
+ *
+ * 工作区(拼图式分析工作台)的核心数据结构:数据集、序列块、模型块、可视化块、
+ * 状态枚举等。所有 workspace 组件共享这套类型。 / Core data structures for
+ * the puzzle-style analysis workbench: dataset, sequence/model/visualization
+ * blocks, status enums, etc. Shared by all workspace components.
+ *
+ * 功能模块 / Modules:
+ * - DatasetType / DATASET_OPTIONS / DATASET_LABELS: 数据集枚举 / dataset enum
+ * - BlockType: 'sequence' | 'model' | 'visualization'
+ * - SequenceStatus: 9 个状态(idle → completed/failed) / 9 statuses
+ * - SequenceBlock / ModelBlock / VisualizationBlock: 三类块的接口 / 3 block interfaces
+ * - 关联类型:对比配置、过滤器、布局 / related: comparison config, filter, layout
+ *
+ * 输入 / Inputs:
+ * - 无(纯类型模块)/ None, pure type module
+ *
+ * 输出 / Outputs:
+ * - 命名导出:类型、常量、Record / named exports: types, constants, records
+ *
+ * 数据流 / Data Flow:
+ * 1. mockData.ts 引用此类型生成初始数据 / mockData.ts uses these types
+ * 2. 各工作区组件 import 用于 props/state / components import for props/state
+ * 3. 序列化到后端时按此结构编码 / Serialized to backend per these shapes
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: 无 / None
+ * - 被调用 / Called by: src/components/workspace/*、src/pages/*、mockData.ts
+ *
+ * 使用示例 / Usage Example:
+ *     import type { SequenceBlock, ModelBlock } from '@/components/workspace/types';
+ *     const block: SequenceBlock = { id: uuidv7(), type: 'sequence', ... };
+ *
+ * 作者 / Author: 项目组 / Project Team
+ * 版本 / Version: 1.0
+ */
+/**
  * Workspace Block Type Definitions
  * Defines the core data structures for the puzzle-style analysis workbench.
  */
@@ -59,6 +96,7 @@ export interface ModelBlock {
 export type VizType =
   | 'classification'
   | 'attention'
+  | 'attention-score'
   | 'gcn-graph'
   | 'gcn-message-passing'
   | 'integrated-gradients'
@@ -113,6 +151,13 @@ export const VIZ_TYPE_REGISTRY: VizTypeMeta[] = [
     defaultParams: { topX: 3, modificationType: 'all' },
   },
   {
+    key: 'attention-score',
+    label: 'Attention Score',
+    icon: '📊',
+    description: 'Per-class attention score distribution for all 12 modification types.',
+    defaultParams: {},
+  },
+  {
     key: 'gcn-graph',
     label: 'GCN Graph',
     icon: '🔗',
@@ -152,14 +197,14 @@ export interface BindingColor {
 }
 
 export const BINDING_COLORS: BindingColor[] = [
-  { border: '#c4a48f', bg: '#fdf6f2', accent: '#b8927a', tag: '#9a7a6a' },  // Dusty Rose
-  { border: '#8fae8f', bg: '#f2f8f2', accent: '#7a9c7a', tag: '#6b8a6b' },  // Sage
-  { border: '#8a9eb5', bg: '#f0f4f8', accent: '#7890a8', tag: '#637d94' },  // Slate Blue
-  { border: '#b5a08a', bg: '#f8f4f0', accent: '#a8906e', tag: '#8a7660' },  // Warm Tan
-  { border: '#a08ab5', bg: '#f4f0f8', accent: '#8a74a8', tag: '#7260a0' },  // Lavender
-  { border: '#8ab5a0', bg: '#f0f8f4', accent: '#74a88a', tag: '#609a72' },  // Mint
-  { border: '#b58a8a', bg: '#f8f0f0', accent: '#a87474', tag: '#9a6060' },  // Blush
-  { border: '#a0b58a', bg: '#f4f8f0', accent: '#8aa874', tag: '#729a60' },  // Olive
+  { border: '#e8917a', bg: '#fde8e0', accent: '#d4654a', tag: '#c04a30' },  // Coral
+  { border: '#6bc26b', bg: '#e0f5e0', accent: '#4caf50', tag: '#388e3c' },  // Green
+  { border: '#6aafe0', bg: '#ddeeff', accent: '#42a5f5', tag: '#1e88e5' },  // Blue
+  { border: '#f0a050', bg: '#fff3e0', accent: '#ff9800', tag: '#f57c00' },  // Orange
+  { border: '#b080d8', bg: '#f0e6f8', accent: '#9c27b0', tag: '#7b1fa2' },  // Purple
+  { border: '#50c8c8', bg: '#e0f7f7', accent: '#00bcd4', tag: '#0097a7' },  // Teal
+  { border: '#e07088', bg: '#fde0e6', accent: '#e91e63', tag: '#c2185b' },  // Pink
+  { border: '#c8b040', bg: '#f8f4d8', accent: '#cddc39', tag: '#afb42b' },  // Lime
 ];
 
 /**

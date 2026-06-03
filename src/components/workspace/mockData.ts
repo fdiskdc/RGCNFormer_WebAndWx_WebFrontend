@@ -1,4 +1,41 @@
 /**
+ * mockData.ts - Workspace 模拟数据 / Workspace mock data
+ *
+ * 工作区在开发期(无后端 / 演示模式)使用的模拟数据:默认模型、示例序列、示例
+ * 可视化结果、generateId 工具等。 / Mock data for the workbench during dev/demo
+ * (no backend): default models, sample sequences, sample visualization results,
+ * generateId helper, etc.
+ *
+ * 功能模块 / Modules:
+ * - generateId(prefix): 基于时间戳 + 计数器的 ID / timestamp + counter ID
+ * - DEFAULT_MODELS: 默认模型块(RGCNFormer / GCN / Baseline)/ default model blocks
+ * - DEFAULT_SEQUENCE: 示例 RNA 序列 / sample RNA sequence
+ * - SAMPLE_VISUALIZATION_DATA: 示例注意力 / 定位数据 / sample attention/loc data
+ *
+ * 输入 / Inputs:
+ * - 无(纯数据模块)/ None, pure data module
+ *
+ * 输出 / Outputs:
+ * - generateId(prefix): string - 唯一 ID / unique ID
+ * - DEFAULT_MODELS: ModelBlock[] - 默认模型 / default models
+ * - 其他:SequenceBlock、VisualizationBlock 等示例 / other sample blocks
+ *
+ * 数据流 / Data Flow:
+ * 1. 工作区初始化时如无真实数据,使用本模块的 mock / Init with mock if no real data
+ * 2. 用户切换数据源时由真实数据替换 mock / Switch to real data when available
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: ./types(类型导入)
+ * - 被调用 / Called by: 工作区初始化、各 workspace 组件 / workspace init, components
+ *
+ * 使用示例 / Usage Example:
+ *     import { DEFAULT_MODELS, generateId } from '@/components/workspace/mockData';
+ *     const id = generateId('seq');
+ *
+ * 作者 / Author: 项目组 / Project Team
+ * 版本 / Version: 1.0
+ */
+/**
  * Mock Data & Sample Results for Workspace
  * Centralized mock data, sample results, and default visualization data.
  */
@@ -43,6 +80,26 @@ export const DEFAULT_MODELS: ModelBlock[] = [
     description:
       'K-Means clustering for unsupervised RNA modification pattern discovery and grouping.',
     version: 'v0.1',
+  },
+  {
+    id: 'model_dscps',
+    type: 'model',
+    title: 'DSCPS',
+    modelName: 'DSCPS',
+    status: 'available',
+    description:
+      'Deep Semi-Supervised Clustering based on Pairwise Constraints and Sample Similarity',
+    version: 'v1.0',
+  },
+  {
+    id: 'model_procse',
+    type: 'model',
+    title: 'ProCSE',
+    modelName: 'ProCSE',
+    status: 'available',
+    description:
+      'Progressive Contrastive Structural Entropy for Graph Clustering',
+    version: 'v1.0',
   },
 ];
 
@@ -332,6 +389,7 @@ export function createVizBlock(
   const typeInfo = {
     classification: 'Classification',
     attention: 'Attention',
+    'attention-score': 'Attention Score',
     'gcn-graph': 'GCN Graph',
     'gcn-message-passing': 'GCN Message Passing',
     'integrated-gradients': 'Integrated Gradients',
