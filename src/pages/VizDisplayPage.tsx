@@ -1,6 +1,44 @@
 /**
- * VizDisplayPage - Full-screen visualization display interface.
- * Receives completed visualization data from the workspace and renders all results.
+ * VizDisplayPage.tsx - 全屏可视化展示页(由 Workspace 注入完成数据)/ Full-screen viz display
+ *
+ * /viz-display 路由页面。接收 WorkspacePage 通过 useNavigate state 传入的
+ * 已完成 viz 数据(vizBlocks + sequenceBlocks),用全屏布局渲染:左侧 viz 块
+ * 列表(点击切换)、右侧对应 viz 子组件。
+ * Page mounted at /viz-display. Receives completed viz data (vizBlocks + sequenceBlocks)
+ * from WorkspacePage via useNavigate state, and renders a full-screen layout:
+ * left = viz block list (click to switch), right = corresponding viz sub-component.
+ *
+ * 功能模块 / Modules:
+ * - useLocation().state 读取 Workspace 传入的数据
+ *   / Read state from useLocation
+ * - 左栏 viz 列表 / Left viz list
+ * - 右栏对应 viz 组件 / Right viz renderer
+ * - 返回 Workspace 按钮 / Return to Workspace button
+ *
+ * 输入 / Inputs:
+ * - location.state: { vizBlocks, sequenceBlocks, modelBlocks, ... }
+ *   (由 WorkspacePage.navigate('/viz-display', { state }) 注入)
+ *   / State injected by WorkspacePage
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 全屏 viz 展示页 / Full-screen viz display JSX
+ *
+ * 数据流 / Data Flow:
+ * 1. WorkspacePage Apply 完成 → navigate('/viz-display', { state })
+ * 2. VizDisplayPage 挂载 → useLocation().state 拿数据
+ * 3. 渲染左栏 viz 列表
+ * 4. 默认选中第一个 viz,右栏渲染
+ * 5. 用户切换左栏 → 右栏重渲染
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: context/RnaContext、workspace/types、所有 viz 子组件
+ * - 被调用 / Called by: App.tsx(<Route path="/viz-display">)
+ * - 关联 / Related: WorkspacePage(数据源)、ResultsPage(URL jobId 版)
+ *
+ * 使用示例 / Usage Example:
+ *   // WorkspacePage.tsx 内
+ *   navigate('/viz-display', { state: { vizBlocks, sequenceBlocks, modelBlocks } });
+ *   // 浏览器 /rgcnformer/viz-display
  */
 
 import React, { useEffect } from 'react';

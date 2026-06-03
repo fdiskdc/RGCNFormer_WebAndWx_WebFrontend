@@ -1,3 +1,42 @@
+/**
+ * TargetGcnViz.tsx - 目标节点 GCN 3D 可视化(节点高亮 + 边聚合)/ Target-node GCN viz
+ *
+ * /target-gcn 路由页面。在 GcnViz 基础上加入"目标节点"概念:用户可指定一个
+ * targetNodeIndex,后端 fetchGcnAggregation 拉回该节点周围的 N 跳邻居边权重
+ * 聚合数据,前端以不同颜色/粗细高亮目标节点与连接边,便于分析 GCN 信息传递。
+ * Page mounted at /target-gcn. Extends GcnViz with a "target node" concept: the user
+ * supplies a targetNodeIndex, the backend returns fetchGcnAggregation data (per-edge
+ * aggregated weights around the target), and the frontend highlights the target node
+ * and incident edges with distinct colors/widths to analyze GCN message passing.
+ *
+ * 功能模块 / Modules:
+ * - 目标节点索引输入(InputNumber)/ Target node index input
+ * - 边聚合数据获取(fetchGcnAggregation)/ Fetch aggregated edge data
+ * - 目标节点高亮(不同色)/ Target node highlight
+ * - 邻居边粗细/颜色按权重映射 / Neighbor edge width/color by weight
+ *
+ * 输入 / Inputs:
+ * - targetNodeIdx: number / index of the target nucleotide
+ * - useRna().rnaSequence: 当前序列 / current sequence
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 3D 图(目标节点突出)/ 3D graph with highlighted target
+ *
+ * 数据流 / Data Flow:
+ * 1. 用户输入 targetNodeIdx → 提交
+ * 2. fetchGcnAggregation(seq, idx) → 返回 target 节点 + 邻居边权重
+ * 3. 渲染 ForceGraph3D,目标节点大尺寸 + 醒目色
+ * 4. 邻居边按 weight 映射到线宽/颜色
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: lib/api.ts(fetchGcnAggregation)、context/RnaContext
+ * - 被调用 / Called by: App.tsx(<Route path="/target-gcn">)
+ * - 关联 / Related: GcnViz.tsx(基础 GCN 可视化)
+ *
+ * 使用示例 / Usage Example:
+ *   <Route path="/target-gcn" element={<TargetGcnViz />} />
+ *   // 浏览器 /rgcnformer/target-gcn
+ */
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import ForceGraph3D from 'react-force-graph-3d';
 import { Spin, Alert, Button, Space, Card, Typography, InputNumber } from 'antd';

@@ -1,3 +1,45 @@
+/**
+ * DatasetComparisonHeatmap.tsx - 跨数据集分类结果热力图 / Cross-dataset classification heatmap
+ *
+ * /viz-display 之一(也可独立访问)。使用 ECharts 渲染一个二维热力图,行 = 12 类
+ * RNA 修饰,列 = 多个数据集(Human / Plant / 3Gen / ac4C 等),颜色深浅表示
+ * 该模型在该数据集该修饰上的分类性能(如 ACC / AUC)。
+ * 数据由 fetchDatasetComparison(GET)获取,经 useQuery 缓存。
+ * One of the /viz-display pages. Renders an ECharts heatmap: rows = 12 RNA modification
+ * types, columns = multiple datasets (Human/Plant/3Gen/ac4C/etc.), color intensity =
+ * per-modification classification metric (ACC/AUC). Data via fetchDatasetComparison +
+ * useQuery caching.
+ *
+ * 功能模块 / Modules:
+ * - ECharts 热力图(visualMap 渐变)/ ECharts heatmap with visualMap gradient
+ * - 行/列 tooltip(显示具体指标值)/ Row/column tooltip
+ * - 莫兰迪色卡(MORANDI 常量)/ Morandi palette
+ * - 加载/错误态 / Loading/error states
+ *
+ * 输入 / Inputs:
+ * - 后端 /api/v1/dataset-comparison 返回 DatasetComparisonData
+ *   / Backend /api/v1/dataset-comparison returns DatasetComparisonData
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 热力图 / Heatmap JSX
+ *
+ * 数据流 / Data Flow:
+ * 1. useQuery → fetchDatasetComparison()
+ * 2. 把 data 转换为 [x, y, value] 三元组数组
+ * 3. 配置 ECharts option(series.type='heatmap', visualMap)
+ * 4. echart.setOption(option) → 渲染
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: lib/api.ts(fetchDatasetComparison, DatasetComparisonData 类型)
+ * - 被调用 / Called by: App.tsx(<Route path="/viz-display"> 内部使用)
+ * - 关联 / Related: RgcnformerHeatmap.tsx(单数据集热力图)
+ *
+ * 使用示例 / Usage Example:
+ *   const { data, isLoading, error } = useQuery({
+ *     queryKey: ['dataset-comparison'],
+ *     queryFn: fetchDatasetComparison,
+ *   });
+ */
 import React, { useRef, useEffect } from 'react';
 import * as echarts from 'echarts';
 import type { ECharts } from 'echarts';

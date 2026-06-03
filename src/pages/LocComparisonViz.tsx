@@ -1,3 +1,40 @@
+/**
+ * LocComparisonViz.tsx - 多模型定位对比柱状图 / Multi-model localization comparison
+ *
+ * /classification 之一(也可独立访问)。子组件式 ECharts 柱状图:横轴 = 模型
+ * (RGCNFormer / EvoRMD 等),纵轴 = 某一定位指标(如 ACC / AUC),每个模型一个柱,
+ * 并按排名染色(1st 绿,2nd 橙,3rd 红)。数据由 props 传入 LocComparisonData。
+ * One of the /classification pages. Renders a comparison bar chart via ECharts:
+ * x-axis = models (RGCNFormer/EvoRMD/etc.), y-axis = a localization metric (ACC/AUC),
+ * one bar per model, color-coded by rank (1st green, 2nd amber, 3rd red). Data
+ * is passed via props (LocComparisonData).
+ *
+ * 功能模块 / Modules:
+ * - ECharts 柱状图(series: bar)/ ECharts bar chart
+ * - 排名色映射(RANK_COLORS)/ Rank color mapping
+ * - tooltip(模型 + 指标值)/ Tooltip
+ * - 自适应窗口大小 / Responsive resize
+ *
+ * 输入 / Inputs (props):
+ * - data?: LocComparisonData(模型 × 指标)
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 柱状图 / Bar chart JSX
+ *
+ * 数据流 / Data Flow:
+ * 1. 父组件(VizDisplayPage 等)传入 LocComparisonData
+ * 2. 转换为 ECharts series.data + 按 rank 着色
+ * 3. echart.setOption
+ * 4. hover → tooltip
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: lib/api.ts(LocComparisonData 类型)
+ * - 被调用 / Called by: pages/VizDisplayPage.tsx 等
+ * - 关联 / Related: LocalizationViz.tsx(单模型版)、compare/CompareBarChart.tsx
+ *
+ * 使用示例 / Usage Example:
+ *   <LocComparisonViz data={locComparisonPayload} />
+ */
 import React, { useRef, useEffect, useMemo } from 'react';
 import * as echarts from 'echarts';
 import type { LocComparisonData } from '../lib/api';

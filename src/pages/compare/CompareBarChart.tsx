@@ -1,3 +1,40 @@
+/**
+ * CompareBarChart.tsx - 多模型多指标柱状图对比(ECharts)/ Multi-model metric bar chart
+ *
+ * 子组件,由 ComparePage 引用。接收 { models: [{ name, display_name, metrics }], metric_names }
+ * 数据,使用 ECharts 渲染分组柱状图:x 轴 = 模型,系列 = 各指标(ACC / AUC / F1 等)。
+ * 配色采用莫兰迪色卡,每个模型固定颜色。
+ * Sub-component used by ComparePage. Renders a grouped ECharts bar chart from
+ * { models: [{ name, display_name, metrics }], metric_names }: x-axis = models, series
+ * = each metric (ACC/AUC/F1/...). Morandi palette with one color per model.
+ *
+ * 功能模块 / Modules:
+ * - ECharts 分组柱状图(xAxis: category, series: bar)/ Grouped ECharts bar
+ * - 莫兰迪色卡(MORANDI_COLORS)/ Morandi palette
+ * - legend + tooltip(显示模型 + 指标)/ Legend + tooltip
+ * - 自适应窗口大小 / Responsive resize
+ *
+ * 输入 / Inputs (props):
+ * - data.models: Array<{ name, display_name, metrics: Record<metric, number> }>
+ * - data.metric_names: string[] / metric names to show
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 柱状图容器 / Bar chart container JSX
+ *
+ * 数据流 / Data Flow:
+ * 1. ComparePage 把对比数据(多个模型 × 多指标)通过 props 传入
+ * 2. 转换为 ECharts series 数组(每个 metric 一个 series)
+ * 3. echart.setOption → 渲染
+ * 4. 用户 hover → tooltip 弹出模型名 + 指标值
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: echarts(纯前端,无后端调用)
+ * - 被调用 / Called by: pages/ComparePage.tsx
+ * - 关联 / Related: LocalizationViz / LocComparisonViz(更细粒度的对比)
+ *
+ * 使用示例 / Usage Example:
+ *   <CompareBarChart data={comparisonPayload} />
+ */
 import React, { useRef, useEffect } from 'react';
 import * as echarts from 'echarts';
 import type { ECharts } from 'echarts';

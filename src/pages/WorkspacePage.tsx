@@ -1,6 +1,50 @@
 /**
- * WorkspacePage - Single-page puzzle-style analysis workbench.
- * Replaces the old MainPage as the root route.
+ * WorkspacePage.tsx - 积木式工作台(单页可视化分析)/ Puzzle-style analysis workbench
+ *
+ * / 路由页面(根页面,替代旧 MainPage)。整个页面分为三栏:
+ *   - 左:PuzzleLibrary(可拖入 Input/Model/Visualization block)
+ *   - 中:WorkspaceCanvas(三区布局:Input/Model/Visualization)
+ *   - 右:PropertiesPanel(选中 block 的属性 + 编辑)
+ * 状态全部由 WorkspacePage 顶层 useState 维护(sequenceBlocks / modelBlocks / vizBlocks /
+ * selectedBlockId),子组件通过 props 接收。
+ * Page mounted at / (root, replacing the legacy MainPage). Three-column layout:
+ *   - Left: PuzzleLibrary (Input/Model/Visualization block source)
+ *   - Center: WorkspaceCanvas (three-zone layout: Input/Model/Visualization)
+ *   - Right: PropertiesPanel (selected block's properties + editor)
+ * All state lives in WorkspacePage via useState (sequenceBlocks/modelBlocks/vizBlocks/
+ * selectedBlockId); child components receive props only.
+ *
+ * 功能模块 / Modules:
+ * - 三栏布局(Grid/Flex)/ Three-column layout
+ * - sequenceBlocks/modelBlocks/vizBlocks 状态 / Workspace state
+ * - selectedBlockId 选中态 / Selection state
+ * - onAddSequence / onAddViz / onUpdateBlock / onRemoveBlock / onRunViz 回调
+ *   / Add/Update/Remove/Run callbacks
+ * - Apply 后跳 VizDisplayPage / Navigate to VizDisplayPage after run
+ *
+ * 输入 / Inputs:
+ * - 用户点击 PuzzleLibrary 项(添加 block)
+ * - 用户在 PropertiesPanel 编辑(更新 block)
+ * - 用户点击 Apply(运行 viz)→ 调后端
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 三栏工作台 / Three-column workbench JSX
+ *
+ * 数据流 / Data Flow:
+ * 1. 初始:sequenceBlocks=[], modelBlocks=MODEL_REGISTRY, vizBlocks=[]
+ * 2. 用户在 PuzzleLibrary 选 dataset → onAddSequence → 推入 sequenceBlocks
+ * 3. 用户在 PropertiesPanel 改序列/绑模型 → onUpdateBlock
+ * 4. 用户点击 Apply → onRunViz → fetch + setResult → 跳转 VizDisplayPage
+ * 5. selectedBlockId 变化 → 右侧 PropertiesPanel 重渲染
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: 所有 workspace/* 子组件、context/RnaContext、lib/api
+ * - 被调用 / Called by: App.tsx(<Route path="/">)
+ * - 关联 / Related: VizDisplayPage(展示完整结果)
+ *
+ * 使用示例 / Usage Example:
+ *   <Route path="/" element={<WorkspacePage />} />
+ *   // 浏览器 /rgcnformer/
  */
 
 import React, { useState, useCallback, useEffect } from 'react';

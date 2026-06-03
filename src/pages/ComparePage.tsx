@@ -1,3 +1,53 @@
+/**
+ * ComparePage.tsx - 多模型多指标对比页(综合面板)/ Multi-model comparison hub
+ *
+ * /compare 路由页面(独立 Layout,非 VizLayout)。综合展示多模型对比数据:
+ *   - 柱状图(CompareBarChart):各模型 ACC/AUC/F1 等指标
+ *   - RGCNFormer 单模型热力图(RgcnformerHeatmap)
+ *   - 跨数据集热力图(DatasetComparisonHeatmap)
+ *   - 单模型定位(LocalizationViz)
+ *   - 跨模型定位对比(LocComparisonViz)
+ *   - UMAP(UMapViz)
+ * 数据由 useQuery 缓存;Layout 含"返回首页"按钮。
+ * Page mounted at /compare (independent layout, not VizLayout). Aggregates multi-model
+ * comparison data:
+ *   - Bar chart (CompareBarChart): per-model ACC/AUC/F1
+ *   - RGCNFormer heatmap (RgcnformerHeatmap)
+ *   - Cross-dataset heatmap (DatasetComparisonHeatmap)
+ *   - Single-model localization (LocalizationViz)
+ *   - Cross-model localization (LocComparisonViz)
+ *   - UMAP (UMapViz)
+ * Data is useQuery-cached; the layout has a "Return to Home" button.
+ *
+ * 功能模块 / Modules:
+ * - 6 种可视化子组件并列 / 6 sub-visualizations side by side
+ * - useQuery 拉 6 类后端数据 / 6 useQuery hooks
+ * - 独立 Layout(无 VizLayout Sider)/ Independent layout
+ * - i18n 切换 / i18n switch
+ *
+ * 输入 / Inputs:
+ * - URL: /compare(query 参数可指定对比模型集合,可选)
+ * - 后端 /api/v1/model-comparison, dataset-comparison, rgcnformer-heatmap,
+ *   rgcnformer-localization, rgcnformer-loc-comparison, umap, cora-umap
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 综合对比页 / Comparison page JSX
+ *
+ * 数据流 / Data Flow:
+ * 1. 页面挂载 → 6 个 useQuery 并发拉数据
+ * 2. 各自把数据透传给子组件
+ * 3. 子组件用 ECharts 渲染
+ * 4. 用户滚动页面查看不同子视图
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: lib/api.ts(6 个 fetch 函数)、所有子 viz 组件
+ * - 被调用 / Called by: App.tsx(<Route path="/compare">)
+ * - 关联 / Related: VizDisplayPage.tsx(类似聚合页)
+ *
+ * 使用示例 / Usage Example:
+ *   <Route path="/compare" element={<ComparePage />} />
+ *   // 浏览器 /rgcnformer/compare
+ */
 import React, { useState } from 'react';
 import { Layout, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';

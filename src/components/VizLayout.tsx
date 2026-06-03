@@ -1,3 +1,53 @@
+/**
+ * VizLayout.tsx - 可视化套件共用布局(桌面 Sider + 移动 Drawer) / Shared layout for viz suite
+ *
+ * App.tsx 中 <Route element={<VizLayout />}> 的目标组件,包裹 classification/attention/
+ * gcn/target-gcn/integrated-gradients/model-viz 等可视化页面。
+ * 根据视口宽度自动切换两套布局:
+ *   - 桌面(>= 768px):左侧 Sider(导航菜单 + 返回首页 + 中英切换)+ 右侧 Content(标题栏 + Outlet)
+ *   - 移动(< 768px):顶部 Header + 横向滚动菜单 + Content(Sider 自动折叠)
+ * 配色采用莫兰迪色系(MORANDI 常量),整体淡雅。
+ * The wrapper for visualization pages declared in App.tsx's <Route element={<VizLayout />}>.
+ * Switches between two layouts based on viewport:
+ *   - Desktop (>= 768px): left Sider (nav + return-home + i18n switch) + right Content (title + Outlet)
+ *   - Mobile  (<  768px): top Header + horizontal scrollable menu + Content (Sider auto-collapsed)
+ * Uses a Morandi-style color palette (MORANDI constant).
+ *
+ * 功能模块 / Modules:
+ * - 响应式切换 (useEffect + window.innerWidth > DESKTOP_BREAKPOINT)
+ *   / Responsive switch (useEffect + window resize listener)
+ * - 桌面布局:固定 Sider + 滚动 Content / Desktop: fixed Sider + scrollable Content
+ * - 移动布局:Header + 水平菜单 / Mobile: Header + horizontal menu
+ * - i18n 切换按钮(中文/EN)/ i18n toggle buttons (zh / EN)
+ * - 当前路由高亮(menuItemStyle 根据 currentKey)/ Active-route highlight
+ *
+ * 输入 / Inputs:
+ * - window.innerWidth: 视口宽度 / Viewport width
+ * - location.pathname: 当前路由 / Current route (from react-router useLocation)
+ * - useTranslation().t / language / changeLanguage: i18n hook
+ *
+ * 输出 / Outputs:
+ * - Ant Design <Layout>(Sider + Content)/ AntD <Layout> shell
+ * - <Outlet /> 处挂载子路由 Page / <Outlet /> mounts child route page
+ *
+ * 数据流 / Data Flow:
+ * 1. 用户访问 /classification 等 → App.tsx 匹配 VizLayout
+ * 2. VizLayout 根据视口选 desktopLayout / mobileLayout
+ * 3. 菜单点击 → navigate(key) → 路由更新 → 子 Page 重新挂载
+ * 4. 中英按钮 → changeLanguage → LanguageContext 触发整树重渲染
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: lib/i18n/LanguageContext(useTranslation)
+ * - 被调用 / Called by: App.tsx(<Route element={<VizLayout />}>)
+ * - 包裹 / Wraps: pages/ClassificationViz, AttentionViz, GcnViz, TargetGcnViz,
+ *   IntegratedGradientsViz, ModelViz
+ *
+ * 使用示例 / Usage Example:
+ *   <Route element={<VizLayout />}>
+ *     <Route path="/classification" element={<ClassificationViz />} />
+ *     ...
+ *   </Route>
+ */
 import React, { useState, useEffect } from 'react';
 import { Layout, Button } from 'antd';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';

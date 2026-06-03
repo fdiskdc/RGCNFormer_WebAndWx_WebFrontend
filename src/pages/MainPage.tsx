@@ -1,3 +1,36 @@
+/**
+ * MainPage.tsx - 旧版首页(已被 WorkspacePage 替代,保留为 /legacy)/ Legacy home page
+ *
+ * 旧版单页应用首页:RNA 序列输入 + 提交 + 跳转到结果页。已被 WorkspacePage(/)
+ * 替代,仅作 /legacy 路由保留(老链接兼容)。新功能请在 WorkspacePage 中开发。
+ * Legacy single-page home: RNA sequence input + submit + navigate to results.
+ * Superseded by WorkspacePage (/); kept as /legacy for backward compatibility.
+ * New features should land in WorkspacePage.
+ *
+ * 功能模块 / Modules:
+ * - 序列输入 + 长度校验 / Sequence input + length validation
+ * - 提交 + 跳 results / Submit + navigate to results
+ * - 中英切换 / i18n switch
+ *
+ * 输入 / Inputs:
+ * - 用户在 textarea 输入 RNA 序列
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 旧版首页 / Legacy home JSX
+ *
+ * 数据流 / Data Flow:
+ * 1. 用户输入 → onChange 更新 state
+ * 2. 点击提交 → submitTask → 拿 jobId → navigate(`/results/${jobId}`)
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: lib/api.ts(submitTask)
+ * - 被调用 / Called by: App.tsx(<Route path="/legacy">)
+ * - 替代关系 / Replaced by: WorkspacePage.tsx
+ *
+ * 使用示例 / Usage Example:
+ *   <Route path="/legacy" element={<MainPage />} />
+ *   // 浏览器 /rgcnformer/legacy
+ */
 /*
  * @Author: Chao Deng && chaodeng987@outlook.com
  * @Date: 2026-01-20 08:39:31

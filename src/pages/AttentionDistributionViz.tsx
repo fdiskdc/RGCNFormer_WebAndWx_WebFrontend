@@ -1,3 +1,42 @@
+/**
+ * AttentionDistributionViz.tsx - 注意力分布直方图 / Attention distribution histogram
+ *
+ * /viz-display 之一(也可独立访问)。使用 ECharts 渲染 Transformer 注意力权重
+ * 的整体分布(直方图 + KDE 曲线),x 轴 = 注意力值(0-1),y 轴 = 频次。
+ * 数据由 fetchAttentionVisualization 拉取,经 useQuery 缓存。
+ * One of the /viz-display pages. Renders an ECharts histogram (with optional KDE curve)
+ * of the global attention weight distribution: x-axis = attention value (0-1), y-axis =
+ * frequency. Data via fetchAttentionVisualization + useQuery.
+ *
+ * 功能模块 / Modules:
+ * - ECharts 直方图(bar) + 折线(KDE)/ ECharts bar + line
+ * - 莫兰迪色卡 / Morandi palette
+ * - 加载/错误态 / Loading/error states
+ *
+ * 输入 / Inputs:
+ * - useRna().rnaSequence: 当前序列(可影响数据)
+ * - 后端 /api/v1/attention-visualization 返回 attention 分布
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 直方图 / Histogram JSX
+ *
+ * 数据流 / Data Flow:
+ * 1. useQuery → fetchAttentionVisualization(seq?)
+ * 2. 转换为 ECharts bins 数组
+ * 3. echart.setOption({ series: [bar, line] })
+ * 4. hover → tooltip
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: lib/api.ts(fetchAttentionVisualization)、context/RnaContext
+ * - 被调用 / Called by: App.tsx(<Route path="/viz-display"> 内部)
+ * - 关联 / Related: AttentionViz.tsx(位置级)、AttentionComparisonViz.tsx(多模型)
+ *
+ * 使用示例 / Usage Example:
+ *   const { data } = useQuery({
+ *     queryKey: ['attention-distribution', rnaSequence],
+ *     queryFn: () => fetchAttentionVisualization(),
+ *   });
+ */
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import * as echarts from 'echarts';

@@ -1,3 +1,47 @@
+/**
+ * IntegratedGradientsViz.tsx - Integrated Gradients 归因 + 3D 节点贡献 / IG attribution
+ *
+ * /integrated-gradients 路由页面。展示 Integrated Gradients(IG)对当前序列的归因:
+ *   - 用户选择 targetClassId(0-11,即 12 类修饰)
+ *   - 后端 fetchIntegratedGradients 返回每个位置的归因分
+ *   - 前端用 react-force-graph-3d 把归因分映射到 3D 节点(节点大小/颜色 = |归因|)
+ * 可调参数:Top N Nodes 高亮、targetClassId、序列输入。
+ * Page mounted at /integrated-gradients. Shows Integrated Gradients (IG) attribution for
+ * the current sequence:
+ *   - User selects targetClassId (0-11, the 12 modification classes)
+ *   - Backend fetchIntegratedGradients returns per-position attribution scores
+ *   - Frontend maps the scores to 3D nodes (size/color = |attribution|)
+ * Parameters: Top N nodes to highlight, targetClassId, sequence input.
+ *
+ * 功能模块 / Modules:
+ * - 目标类下拉(Select, 0-11)/ Target-class dropdown
+ * - IG 归因分获取(fetchIntegratedGradients)/ Fetch IG scores
+ * - 3D 节点归因映射(react-force-graph-3d)/ 3D node attribution map
+ * - Top N 节点高亮 / Top-N node highlight
+ *
+ * 输入 / Inputs:
+ * - useRna().rnaSequence: 当前序列
+ * - targetClassId: number(0-11)/ target class index
+ * - topN: number / number of top nodes to highlight
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 3D 节点归因图 / 3D node attribution graph JSX
+ *
+ * 数据流 / Data Flow:
+ * 1. 用户选 targetClassId + 调 fetchIntegratedGradients
+ * 2. 拿到 attribution[L] + graph nodes/edges
+ * 3. 把 |attribution| 映射到节点 size/color
+ * 4. 渲染 3D 图,hover 显示位置 + 归因分
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: lib/api.ts(fetchIntegratedGradients)、context/RnaContext
+ * - 被调用 / Called by: App.tsx(<Route path="/integrated-gradients">)
+ * - 关联 / Related: AttentionViz.tsx(类似可视化,不同归因法)
+ *
+ * 使用示例 / Usage Example:
+ *   <Route path="/integrated-gradients" element={<IntegratedGradientsViz />} />
+ *   // 浏览器 /rgcnformer/integrated-gradients
+ */
 import React, { useState, useEffect, useRef } from 'react';
 import ForceGraph3D from 'react-force-graph-3d';
 import { Spin, Alert, InputNumber, Select, Button, Space, Card, Typography } from 'antd';

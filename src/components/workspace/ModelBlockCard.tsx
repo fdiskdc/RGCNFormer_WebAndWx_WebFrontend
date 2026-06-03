@@ -1,5 +1,46 @@
 /**
- * ModelBlockCard - A card displayed in the Model Zone representing a model block.
+ * ModelBlockCard.tsx - Model Zone 模型卡片 / Model Zone model card
+ *
+ * Workspace 工作区"Model Zone"中的卡片,代表一个可用的模型(DCPRES 等)。
+ * 展示模型标题、描述、状态(available → "✓ Available" / disabled → "Coming Soon")、
+ * 版本号,以及已绑定的 sequence id 列表(每条显示为彩色圆点)。
+ * disabled 状态下点击不触发选中(disabled 卡 onClick 为 undefined)。
+ * Card inside the workspace's "Model Zone" rendering an available model (e.g. DCPRES).
+ * Renders title, description, status (available/disabled), version, and the list of
+ * bound sequence ids (each as a colored dot). Disabled cards do not respond to clicks.
+ *
+ * 功能模块 / Modules:
+ * - 状态徽章:available(✓)/disabled(Coming Soon)/ Status badge rendering
+ * - 绑定序列彩色圆点(BINDING_COLORS 派生)/ Bound-sequence colored dots
+ * - 选中态高亮(box-shadow) / Selected highlight
+ *
+ * 输入 / Inputs:
+ * - block: ModelBlock / model block
+ * - isSelected: boolean / selection flag
+ * - onClick: () => void / click callback (disabled when block.status==='disabled')
+ * - boundSequenceIds?: string[] / ids of sequences bound to this model
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 卡片 / Card JSX
+ *
+ * 数据流 / Data Flow:
+ * 1. WorkspacePage 注入 modelBlocks(MODEL_REGISTRY 派生)
+ * 2. WorkspaceCanvas 计算每个 model 的 boundSequenceIds(扫 sequenceBlocks)
+ * 3. 用户点击 → onSelectBlock(block.id) → PropertiesPanel 展示 ModelProperties
+ * 4. 状态从 disabled 切换为 available 时,workspace 顶层 model registry 触发重渲染
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: workspace/types(BINDING_COLORS, getBindingColorIndex)
+ * - 被调用 / Called by: components/workspace/WorkspaceCanvas.tsx
+ * - 关联 / Related: SequenceBlockCard(共享颜色)、PropertiesPanel(ModelProperties)
+ *
+ * 使用示例 / Usage Example:
+ *   <ModelBlockCard
+ *     block={modelBlock}
+ *     isSelected={selectedId === modelBlock.id}
+ *     onClick={() => onSelectBlock(modelBlock.id)}
+ *     boundSequenceIds={[seq1.id, seq2.id]}
+ *   />
  */
 
 import React from 'react';

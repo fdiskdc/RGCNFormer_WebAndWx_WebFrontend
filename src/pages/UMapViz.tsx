@@ -1,3 +1,44 @@
+/**
+ * UMapViz.tsx - RNA 特征 UMAP 2D 嵌入散点图 / UMAP 2D embedding scatter
+ *
+ * /viz-display 之一(也可独立访问)。使用 echarts-for-react 渲染 UMAP 2D 散点图:
+ * 每个点 = 一条 RNA 序列(或序列片段),颜色按 12 类修饰着色。数据由后端
+ * /api/v1/umap 端点返回 UmapData,通过 props 传入(由 VizDisplayPage / Workspace 注入)
+ * 或自取(若 data 缺省)。
+ * One of the /viz-display pages. Renders a UMAP 2D scatter with echarts-for-react:
+ * each point = one RNA sequence (or fragment), colored by 12 modification classes.
+ * Data is passed via props (UmapData) by VizDisplayPage/Workspace, or self-fetched if
+ * not provided.
+ *
+ * 功能模块 / Modules:
+ * - ECharts 散点图(symbol/circle, visualMap)/ ECharts scatter
+ * - 12 类修饰颜色映射 / 12-class color mapping
+ * - tooltip(序列 id + 修饰类型)/ Tooltip
+ * - 加载/错误态 / Loading/error states
+ *
+ * 输入 / Inputs (props):
+ * - data?: UmapData(可选;若省略则在内部 useQuery 拉取)
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 散点图 / Scatter JSX
+ *
+ * 数据流 / Data Flow:
+ * 1. props.data 提供 → 直接渲染
+ * 2. props.data 缺省 → useQuery(fetchUmap)
+ * 3. 转换 { x, y, label } 三元组数组 → ECharts series.data
+ * 4. echart.setOption → 渲染
+ * 5. hover → tooltip
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: lib/api.ts(UmapData 类型)
+ * - 被调用 / Called by: pages/VizDisplayPage.tsx、pages/WorkspacePage.tsx
+ * - 关联 / Related: 后端 /api/v1/umap 端点
+ *
+ * 使用示例 / Usage Example:
+ *   <UMapViz data={umapPayload} />
+ *   // 或自取:
+ *   <UMapViz />
+ */
 import React, { useMemo } from 'react';
 import ReactECharts from 'echarts-for-react';
 import { Spin, Alert } from 'antd';

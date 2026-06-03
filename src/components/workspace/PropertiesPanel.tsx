@@ -1,6 +1,56 @@
 /**
- * PropertiesPanel - Right sidebar that displays configuration for the selected block.
- * Shows different content based on block type (sequence / model / visualization).
+ * PropertiesPanel.tsx - 右栏:选中 block 的可编辑属性 / Right sidebar block properties
+ *
+ * WorkspacePage 右侧栏,根据当前选中 block 的 type 渲染不同的属性表单:
+ *   - SequenceProperties:标题、数据集、序列输入(过滤 ACGU,最长 1001)、绑定模型、状态、Job ID
+ *   - ModelProperties:模型名、版本、状态、描述(无编辑)
+ *   - VisualizationProperties:viz 类型、绑定数据源(sequence block)、绑定模型、参数
+ *     (Top X / Target Class ID / Top N / Target Node Index,视 viz 类型而异)
+ * SequenceProperties 在首次挂载时若序列为空,自动 fetchSampleSequence 拉取示例。
+ * Right sidebar of WorkspacePage. Renders one of three property forms based on the selected
+ * block's type:
+ *   - SequenceProperties: title, dataset, sequence input (ACGU filter, max 1001),
+ *     bound model, status, job id
+ *   - ModelProperties: model name, version, status, description (read-only)
+ *   - VisualizationProperties: viz type, bound data source (sequence block), bound model,
+ *     and per-type parameters (Top X / Target Class ID / Top N / Target Node Index)
+ * SequenceProperties auto-fetches a sample sequence on first mount if the sequence is empty.
+ *
+ * 功能模块 / Modules:
+ * - 三种 block 类型的子属性组件 / Three per-type sub-components
+ * - 关闭按钮 (右上角 ✕)/ Close button (✕)
+ * - Remove / Apply 动作按钮 / Remove / Apply action buttons
+ * - 自动拉取示例序列(SequenceProperties)/ Auto-fetch sample sequence
+ *
+ * 输入 / Inputs:
+ * - block: WorkspaceBlock | null / currently selected block (null = empty state)
+ * - sequenceBlocks / modelBlocks / vizBlocks 列表 / workspace state
+ * - onUpdateBlock / onRemoveBlock / onRunViz 回调 / parent callbacks
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 属性面板 / Properties panel JSX
+ *
+ * 数据流 / Data Flow:
+ * 1. 用户在 WorkspaceCanvas 点击 block → onSelectBlock(id)
+ * 2. WorkspacePage 把该 block 传入 <PropertiesPanel block=...>
+ * 3. 渲染对应子组件(SequenceProperties / ModelProperties / VisualizationProperties)
+ * 4. 用户修改 → onUpdateBlock → WorkspacePage 更新 state → 卡片重渲染
+ * 5. 用户点击 Apply → onRunViz(blockId) → 调用后端 API
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: lib/api.ts(fetchSampleSequence)、workspace/types(VIZ_TYPE_REGISTRY 等)
+ * - 被调用 / Called by: pages/WorkspacePage.tsx
+ * - 关联 / Related: WorkspaceCanvas(选中交互)、VizBlockCard/SequenceBlockCard/ModelBlockCard
+ *
+ * 使用示例 / Usage Example:
+ *   <PropertiesPanel
+ *     block={selectedBlock}
+ *     sequenceBlocks={sequenceBlocks}
+ *     modelBlocks={modelBlocks}
+ *     onUpdateBlock={(id, upd) => updateBlock(id, upd)}
+ *     onRemoveBlock={(id) => removeBlock(id)}
+ *     onRunViz={(id) => runVisualization(id)}
+ *   />
  */
 
 import React from 'react';

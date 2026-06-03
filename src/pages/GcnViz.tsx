@@ -1,3 +1,44 @@
+/**
+ * GcnViz.tsx - GCN 图结构 3D 可视化(react-force-graph-3d)/ GCN graph 3D visualization
+ *
+ * /gcn 路由页面。使用 react-force-graph-3d 渲染 RNA 二级结构图(节点 = 核苷酸,
+ * 边 = 配对关系),颜色按节点类型着色。流程:用户提交序列 → 后端推理 →
+ * 返回图数据 → 渲染 3D 视图。提供自动旋转、暂停、重置视角等交互。
+ * Page mounted at /gcn. Uses react-force-graph-3d to render the RNA secondary-structure
+ * graph (nodes = nucleotides, edges = base pairs) with per-type coloring. Pipeline:
+ * user submits sequence → backend inference → graph payload returned → 3D scene rendered.
+ * Provides auto-rotation, pause, and camera-reset interactions.
+ *
+ * 功能模块 / Modules:
+ * - 3D 力导向图(react-force-graph-3d)/ 3D force-directed graph
+ * - 节点类型着色(N/M/P 等)/ Per-type node coloring
+ * - 视角控制(自动旋转/暂停/重置)/ Camera controls
+ * - 加载/错误状态(Spin, Alert)/ Loading/error states
+ *
+ * 输入 / Inputs:
+ * - useRna().rnaSequence / jobId / setJobId: 来自 RnaContext / from RnaContext
+ * - 后端 /api/v1/submit-task + /api/v1/get-result 轮询 / Submit + poll endpoints
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 3D 图容器 / 3D graph container JSX
+ *
+ * 数据流 / Data Flow:
+ * 1. 用户输入序列 → setRnaSequence(rnaSequence)
+ * 2. 点击"提交" → submitTask(...) → 拿到 jobId
+ * 3. 轮询 getResult → 拿到 graph payload(节点/边/坐标)
+ * 4. 构造 GraphData → 喂给 <ForceGraph3D>
+ * 5. 用户操作相机(滚轮缩放、拖拽旋转)
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: lib/api.ts(submitTask, generateJobId)、context/RnaContext
+ * - 被调用 / Called by: App.tsx(<Route path="/gcn">)
+ * - 关联 / Related: TargetGcnViz.tsx(目标节点 GCN)、ModelViz.tsx(模型图)
+ *
+ * 使用示例 / Usage Example:
+ *   // App.tsx
+ *   <Route path="/gcn" element={<GcnViz />} />
+ *   // 浏览器访问 http://host:5173/rgcnformer/gcn
+ */
 import React, { useState, useEffect, useRef } from 'react';
 import ForceGraph3D from 'react-force-graph-3d';
 import { Spin, Alert, Card, Typography } from 'antd';

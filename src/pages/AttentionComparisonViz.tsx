@@ -1,3 +1,42 @@
+/**
+ * AttentionComparisonViz.tsx - 多模型注意力对比 / Multi-model attention comparison
+ *
+ * /viz-display 之一(也可独立访问)。使用 ECharts 并排展示 mRModN / MultiRM /
+ * modX / EvoRMD 等多个模型在同一样本上的注意力分布(柱状图或热力图)。
+ * 数据由 fetchAttentionComparison 拉取,经 useQuery 缓存。
+ * One of the /viz-display pages. Uses ECharts to side-by-side display attention
+ * distributions of multiple models (mRModN / MultiRM / modX / EvoRMD) on the
+ * same sample. Data via fetchAttentionComparison + useQuery.
+ *
+ * 功能模块 / Modules:
+ * - 多 ECharts 实例(每个模型一个)/ Multiple ECharts instances
+ * - 莫兰迪色卡(MORANDI 派生自样本名)/ Morandi palette (per-sample)
+ * - 样本选择(useState)/ Sample selection
+ * - 加载/错误态 / Loading/error states
+ *
+ * 输入 / Inputs:
+ * - 后端 /api/v1/attention-comparison 返回 AttentionComparisonSample[]
+ *
+ * 输出 / Outputs:
+ * - JSX.Element 多模型对比图 / Comparison view JSX
+ *
+ * 数据流 / Data Flow:
+ * 1. useQuery → fetchAttentionComparison()
+ * 2. 默认选第一个 sample,渲染多个 ECharts
+ * 3. 用户切 sample → 重新渲染
+ * 4. hover → tooltip
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: lib/api.ts(fetchAttentionComparison, AttentionComparisonSample)
+ * - 被调用 / Called by: App.tsx(<Route path="/viz-display"> 内部)
+ * - 关联 / Related: AttentionViz.tsx(单模型)、AttentionDistributionViz.tsx
+ *
+ * 使用示例 / Usage Example:
+ *   const { data } = useQuery({
+ *     queryKey: ['attention-comparison'],
+ *     queryFn: fetchAttentionComparison,
+ *   });
+ */
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import * as echarts from 'echarts';
