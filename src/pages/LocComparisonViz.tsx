@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo } from 'react';
 import * as echarts from 'echarts';
 import type { LocComparisonData } from '../lib/api';
 
@@ -6,15 +6,12 @@ interface LocComparisonVizProps {
   data?: LocComparisonData;
 }
 
-const RANK_PALETTE = [
-  '#27AE60', // 1st (Best) - dark green
-  '#82E0AA', // 2nd - medium green
-  '#D5F5E3', // 3rd - light green
-  '#E8F8F0',
-  '#F0FAF5',
-];
-
-const BG_COLORS = ['#F7F9F9', '#EAE7E1'];
+// Rank colors for emphasis
+const RANK_COLORS: Record<number, string> = {
+  1: '#27AE60', // Best - green
+  2: '#F39C12', // 2nd - amber
+  3: '#E74C3C', // 3rd - red
+};
 
 const RANK_LABELS: Record<number, string> = {
   1: '1st (Best)',
@@ -26,228 +23,203 @@ function rankLabel(rank: number): string {
   return RANK_LABELS[rank] ?? `${rank}th`;
 }
 
-interface ProcessedPoint {
-  modelIdx: number;
-  kIdx: number;
-  value: number;
-  rank: number;
-}
-
 const LocComparisonViz: React.FC<LocComparisonVizProps> = ({ data }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const chartRef = useRef<HTMLDivElement>(null);
+  const chartInstanceRef = useRef<echarts.ECharts | null>(null);
 
   const processedData = useMemo(() => {
-    if (!data || !data.models || data.models.length === 0) return null;
+    if (!data || !data.model_names || data.model_names.length === 0) return null;
 
-    const { models, k_labels } = data;
-
-    // Compute mean across all classes for each model × k
-    const modelMeans = models.map((model) => {
-      const numClasses = model.heatmap.length;
-      const numK = k_labels.length;
-      const means: number[] = [];
-      for (let k = 0; k < numK; k++) {
-        let sum = 0;
-        for (let c = 0; c < numClasses; c++) {
-          sum += model.heatmap[c]?.[k] ?? 0;
-        }
-        means.push(numClasses > 0 ? sum / numClasses : 0);
-      }
-      const overallMean = means.reduce((a, b) => a + b, 0) / means.length;
-      return { name: model.display_name, means, overallMean };
-    });
-
-    // Sort by overall mean ascending (worst first), then reverse (best first for display)
-    modelMeans.sort((a, b) => a.overallMean - b.overallMean);
-    modelMeans.reverse();
-
-    const numModels = modelMeans.length;
+    const { model_names, k_labels, heatmap } = data;
+    const numModels = model_names.length;
     const numK = k_labels.length;
 
-    // Compute ranks: within each metric, highest value = rank 1
-    const points: ProcessedPoint[] = [];
-    for (let m = 0; m < numModels; m++) {
-      for (let k = 0; k < numK; k++) {
-        points.push({ modelIdx: m, kIdx: k, value: modelMeans[m].means[k], rank: 0 });
-      }
-    }
-
+    // Compute ranks within each Top-K column
+    const ranks: number[][] = [];
     for (let k = 0; k < numK; k++) {
-      const values = modelMeans.map((m) => m.means[k]);
-      const sorted = [...values]
-        .map((v, i) => ({ v, i }))
-        .sort((a, b) => b.v - a.v);
-      const ranks = new Array<number>(numModels);
-      sorted.forEach((item, r) => {
-        ranks[item.i] = r + 1;
+      const values = model_names.map((_, i) => ({
+        idx: i,
+        value: heatmap[i]?.[k] ?? 0,
+      }));
+      values.sort((a, b) => b.value - a.value); // descending
+      const colRanks = new Array<number>(numModels);
+      values.forEach((v, rank) => {
+        colRanks[v.idx] = rank + 1;
       });
-      for (let m = 0; m < numModels; m++) {
-        const idx = m * numK + k;
-        points[idx].rank = ranks[m];
-      }
+      ranks.push(colRanks);
     }
 
     return {
+      modelNames: model_names,
       kLabels: k_labels,
-      modelNames: modelMeans.map((m) => m.name),
-      modelMeans,
-      points,
+      heatmap,
+      ranks,
       numModels,
       numK,
-      maxRank: numModels,
     };
   }, [data]);
 
   useEffect(() => {
-    if (!processedData || !containerRef.current) return;
+    if (!processedData || !chartRef.current) return;
 
-    const { kLabels, modelNames, points, numModels, numK, maxRank } = processedData;
-    const container = containerRef.current;
-    const chart = echarts.init(container);
+    const { modelNames, kLabels, heatmap, ranks, numModels, numK } = processedData;
 
-    const cellSize = 64;
-    const gap = 4;
-    const labelWidth = 100;
-    const headerHeight = 44;
-    const radius = cellSize / 2 - 4;
-    const bottomPad = 50;
+    const chart = echarts.init(chartRef.current);
+    chartInstanceRef.current = chart;
 
-    const chartWidth = labelWidth + numK * (cellSize + gap) + 40;
-    const chartHeight = headerHeight + numModels * (cellSize + gap) + bottomPad;
-
-    const graphicElements: object[] = [];
-
-    // Alternating column backgrounds
-    for (let k = 0; k < numK; k++) {
-      const x = labelWidth + k * (cellSize + gap);
-      graphicElements.push({
-        type: 'rect',
-        shape: {
-          x,
-          y: headerHeight - 2,
-          width: cellSize,
-          height: numModels * (cellSize + gap) + 4,
+    // Build series - one per model
+    const series: echarts.SeriesOption[] = modelNames.map((modelName, modelIdx) => ({
+      name: modelName,
+      type: 'scatter',
+      data: Array.from({ length: numK }, (_, kIdx) => {
+        const value = heatmap[modelIdx]?.[kIdx] ?? 0;
+        const rank = ranks[kIdx]?.[modelIdx] ?? 1;
+        return {
+          value: [kIdx, modelIdx, value, rank],
+          itemStyle: {
+            color: RANK_COLORS[rank] ?? '#95A5A6',
+            borderColor: '#fff',
+            borderWidth: 2,
+          },
+        };
+      }),
+      symbolSize: (val: number[]) => {
+        const rank = val[3];
+        // Larger for better rank
+        return rank === 1 ? 48 : rank === 2 ? 40 : 34;
+      },
+      emphasis: {
+        scale: true,
+        scaleSize: 12,
+        itemStyle: {
+          shadowBlur: 12,
+          shadowColor: 'rgba(0,0,0,0.3)',
         },
-        style: { fill: BG_COLORS[k % 2] },
-      });
-    }
-
-    // Top-K labels (x-axis)
-    for (let k = 0; k < numK; k++) {
-      const x = labelWidth + k * (cellSize + gap) + cellSize / 2;
-      graphicElements.push({
-        type: 'text',
-        x,
-        y: 16,
-        style: {
-          text: kLabels[k],
-          fill: '#4A4A4A',
-          font: 'bold 14px "Times New Roman", serif',
-          align: 'center',
+      },
+      label: {
+        show: true,
+        formatter: (params: any) => {
+          const value = params.value[2];
+          return `${(value * 100).toFixed(1)}%`;
         },
-      });
-    }
-
-    // Model name labels (y-axis)
-    for (let m = 0; m < numModels; m++) {
-      const y = headerHeight + m * (cellSize + gap) + cellSize / 2;
-      graphicElements.push({
-        type: 'text',
-        x: labelWidth - 10,
-        y,
-        style: {
-          text: modelNames[m],
-          fill: '#4A4A4A',
-          font: 'bold 14px "Times New Roman", serif',
-          align: 'right',
-          verticalAlign: 'middle',
+        fontSize: 11,
+        fontWeight: 'bold',
+        color: '#fff',
+        textShadowColor: 'rgba(0,0,0,0.4)',
+        textShadowBlur: 2,
+      },
+      tooltip: {
+        formatter: (params: any) => {
+          const [kIdx, , value, rank] = params.value;
+          const kLabel = kLabels[kIdx];
+          const name = params.seriesName;
+          return `
+            <div style="font-weight:bold;margin-bottom:4px">${name}</div>
+            <div>Top-K: <b>${kLabel}</b></div>
+            <div>Mean Accuracy: <b>${(value * 100).toFixed(2)}%</b></div>
+            <div>Rank: <b style="color:${RANK_COLORS[rank]}">${rankLabel(rank)}</b></div>
+          `;
         },
-      });
-    }
-
-    // Bubbles and percentage text
-    for (const pt of points) {
-      const x = labelWidth + pt.kIdx * (cellSize + gap) + cellSize / 2;
-      const y = headerHeight + pt.modelIdx * (cellSize + gap) + cellSize / 2;
-      const color = RANK_PALETTE[Math.min(pt.rank - 1, RANK_PALETTE.length - 1)];
-
-      graphicElements.push({
-        type: 'circle',
-        shape: { cx: x, cy: y, r: radius },
-        style: { fill: color },
-      });
-
-      graphicElements.push({
-        type: 'text',
-        x,
-        y,
-        style: {
-          text: `${(pt.value * 100).toFixed(1)}%`,
-          fill: '#4A4B4B',
-          font: 'bold 12px "Times New Roman", serif',
-          align: 'center',
-          verticalAlign: 'middle',
-        },
-      });
-    }
-
-    // Legend
-    const legendY = chartHeight - 18;
-    const legendStartX = labelWidth + 10;
-    const legendGap = 130;
-
-    for (let r = 1; r <= maxRank; r++) {
-      const color = RANK_PALETTE[Math.min(r - 1, RANK_PALETTE.length - 1)];
-      const x = legendStartX + (r - 1) * legendGap;
-
-      graphicElements.push({
-        type: 'circle',
-        shape: { cx: x, cy: legendY, r: 8 },
-        style: { fill: color },
-      });
-      graphicElements.push({
-        type: 'text',
-        x: x + 14,
-        y: legendY,
-        style: {
-          text: rankLabel(r),
-          fill: '#4A4A4A',
-          font: '13px "Times New Roman", serif',
-          verticalAlign: 'middle',
-        },
-      });
-    }
+      },
+    }));
 
     const option: echarts.EChartsOption = {
-      width: chartWidth,
-      height: chartHeight,
       backgroundColor: '#FFFFFF',
-      animation: false,
-      graphic: [{ elements: graphicElements }] as unknown as NonNullable<echarts.EChartsOption['graphic']>,
+      legend: {
+        bottom: 10,
+        itemGap: 30,
+        textStyle: { fontSize: 13 },
+      },
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: 'rgba(255,255,255,0.95)',
+        borderColor: '#ccc',
+        borderWidth: 1,
+        textStyle: { color: '#333' },
+        extraCssText: 'box-shadow: 0 4px 12px rgba(0,0,0,0.15);',
+      },
+      grid: {
+        left: 110,
+        right: 40,
+        top: 30,
+        bottom: 60,
+      },
+      xAxis: {
+        type: 'category',
+        data: kLabels,
+        axisLabel: {
+          color: '#4A4A4A',
+          fontWeight: 'bold',
+          fontSize: 13,
+        },
+        axisLine: { lineStyle: { color: '#ccc' } },
+        axisTick: { show: false },
+        splitLine: {
+          show: true,
+          lineStyle: { color: '#f0f0f0', type: 'dashed' },
+        },
+      },
+      yAxis: {
+        type: 'category',
+        data: modelNames,
+        axisLabel: {
+          color: '#4A4A4A',
+          fontWeight: 'bold',
+          fontSize: 13,
+        },
+        axisLine: { lineStyle: { color: '#ccc' } },
+        axisTick: { show: false },
+      },
+      series,
     };
 
-    chart.setOption(option, true);
+    chart.setOption(option);
 
-    const resizeObserver = new ResizeObserver(() => {
-      chart.resize();
-    });
-    resizeObserver.observe(container);
+    const handleResize = () => chart.resize();
+    window.addEventListener('resize', handleResize);
 
     return () => {
-      resizeObserver.disconnect();
+      window.removeEventListener('resize', handleResize);
       chart.dispose();
     };
   }, [processedData]);
 
-  const height = processedData
-    ? 44 + processedData.numModels * 68 + 50
-    : 300;
+  if (!processedData) {
+    return (
+      <div style={{ height: 300, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#999' }}>
+        No data available
+      </div>
+    );
+  }
 
   return (
-    <div
-      ref={containerRef}
-      style={{ width: '100%', height, overflowX: 'auto' }}
-    />
+    <div style={{ width: '100%' }}>
+      {/* Rank legend */}
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: 24,
+        marginBottom: 12,
+        fontSize: 13,
+      }}>
+        {[1, 2, 3].map((rank) => (
+          <div key={rank} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <div style={{
+              width: 14,
+              height: 14,
+              borderRadius: '50%',
+              backgroundColor: RANK_COLORS[rank],
+            }} />
+            <span>{rankLabel(rank)}</span>
+          </div>
+        ))}
+      </div>
+      {/* Chart */}
+      <div
+        ref={chartRef}
+        style={{ width: '100%', height: 360 }}
+      />
+    </div>
   );
 };
 
