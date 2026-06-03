@@ -1,4 +1,44 @@
 /**
+ * api.config.ts - 后端 API 端点配置 / Backend API endpoint configuration
+ *
+ * 集中维护后端 API 端点(提交任务、轮询、IG、UMAP、注意力可视化、定位、对比等)
+ * 与默认请求头;同时定义 Vite dev 代理目标。所有 API 相关的常量都集中在此。 /
+ * Centralized backend API endpoints (submit task, polling, IG, UMAP, attention
+ * viz, localization, comparison, etc.) and default headers; also defines the
+ * Vite dev proxy target. All API-related constants live here.
+ *
+ * 功能模块 / Modules:
+ * - DEFAULT_BASE_URL / BASE_URL: API 基础 URL(VITE_API_BASE_URL 可覆盖)/ base URL
+ * - DEFAULT_HEADERS: 默认 Content-Type: application/json / default headers
+ * - LEGACY_PREDICT_URL: 旧版 /api/predict 端点 / legacy predict endpoint
+ * - ENDPOINTS: 所有 API 路径(/submit-task、/results/:jobId、/umap-data 等)/ all API paths
+ * - PROXY_TARGET: Vite dev 代理目标 / Vite dev proxy target
+ * - ApiConfig interface: 配置 TS 类型 / config TS type
+ *
+ * 输入 / Inputs:
+ * - 环境变量:VITE_API_BASE_URL、VITE_LEGACY_PREDICT_URL、VITE_PROXY_TARGET / env vars
+ *
+ * 输出 / Outputs:
+ * - 命名常量与 ENDPOINTS 对象 / named constants & ENDPOINTS object
+ * - ApiConfig 类型 / ApiConfig type
+ *
+ * 数据流 / Data Flow:
+ * 1. 模块加载时读 env,设置 BASE_URL / PROXY_TARGET / Set on load
+ * 2. src/lib/api.ts 引用 ENDPOINTS 拼接 URL / api.ts uses ENDPOINTS
+ * 3. Vite dev 代理 PROXY_TARGET 转发 / Vite dev proxies via PROXY_TARGET
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: vite/client(import.meta.env 类型)
+ * - 被调用 / Called by: src/lib/api.ts、vite.config.ts、其他需要 URL 常量的模块
+ *
+ * 使用示例 / Usage Example:
+ *     import { ENDPOINTS } from '@/config/api.config';
+ *     fetch(ENDPOINTS.SUBMIT_TASK, { method: 'POST', body: ... });
+ *
+ * 作者 / Author: 项目组 / Project Team
+ * 版本 / Version: 1.0
+ */
+/**
  * Centralized API configuration for DCPRES frontend
  * All API-related constants should be configured here
  */
@@ -38,6 +78,8 @@ export const ENDPOINTS = {
     UMAP_CORA_DATA: `${BASE_URL}/umap-cora-data`,
     PREDICT: LEGACY_PREDICT_URL,
     SAMPLE_SEQUENCE: `${BASE_URL}/sample-sequence`,
+    ATTENTION_COMPARISON: `${BASE_URL}/attention-comparison`,
+    ATTENTION_VISUALIZATION: `${BASE_URL}/attention-visualization`,
 } as const;
 
 // ==================== Vite Proxy Configuration ====================
