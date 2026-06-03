@@ -1,3 +1,35 @@
+/**
+ * zh.ts - 中文 i18n 文案 / Chinese i18n strings
+ *
+ * i18next 中文文案资源,与 en.ts 共享同一套 key,运行时根据用户偏好切换。
+ * 覆盖所有 UI 文本。 / i18next Chinese resource. Shares the same keys as en.ts;
+ * switched at runtime by user preference. Covers all UI text.
+ *
+ * 功能模块 / Modules:
+ * - translation: 顶级命名空间 / top-level namespace
+ * - 各功能模块的 key → 中文文案 / per-feature keys
+ *
+ * 输入 / Inputs:
+ * - 无(纯数据模块)/ None, pure data module
+ *
+ * 输出 / Outputs:
+ * - zh: { translation: { ... } } - i18next 资源 / i18next resource
+ *
+ * 数据流 / Data Flow:
+ * 1. i18next 初始化时加载 / Loaded by i18next on init
+ * 2. t('key') 返回对应中文 / t('key') returns the Chinese string
+ *
+ * 相关文件 / Related Files:
+ * - 调用 / Calls: 无 / None
+ * - 被调用 / Called by: i18n 初始化代码、各组件的 t() / i18n init, components via t()
+ *
+ * 使用示例 / Usage Example:
+ *     import { zh } from '@/lib/i18n/zh';
+ *     i18n.addResourceBundle('zh', 'translation', zh.translation);
+ *
+ * 作者 / Author: 项目组 / Project Team
+ * 版本 / Version: 1.0
+ */
 export const zh = {
   translation: {
     'RNA Visualization': 'RNA 可视化',
