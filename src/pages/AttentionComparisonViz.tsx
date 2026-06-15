@@ -37,10 +37,10 @@
  *     queryFn: fetchAttentionComparison,
  *   });
  */
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import * as echarts from 'echarts';
-import { fetchAttentionComparison, type AttentionComparisonSample } from '../lib/api';
+import { fetchAttentionComparison } from '../lib/api';
 
 const MORANDI = {
   mRModN: '#8DA9C4',
@@ -72,7 +72,6 @@ interface AttentionChartProps {
   attention: number[];
   trueSites: number[];
   modelName: string;
-  className: string;
   seqLength: number;
 }
 
@@ -80,7 +79,6 @@ const AttentionChart: React.FC<AttentionChartProps> = ({
   attention,
   trueSites,
   modelName,
-  className,
   seqLength,
 }) => {
   const chartRef = React.useRef<HTMLDivElement>(null);
@@ -91,16 +89,6 @@ const AttentionChart: React.FC<AttentionChartProps> = ({
     const chart = echarts.init(chartRef.current);
     const x = Array.from({ length: seqLength }, (_, i) => i);
     const color = MODEL_COLORS[modelName] || '#888';
-
-    // Compute top-50 recall
-    const k = 50;
-    const topkIndices = attention
-      .map((v, i) => ({ v, i }))
-      .sort((a, b) => b.v - a.v)
-      .slice(0, k)
-      .map((item) => item.i);
-    const hits = trueSites.filter((s) => topkIndices.includes(s));
-    const recall = trueSites.length > 0 ? hits.length / Math.min(trueSites.length, k) : 0;
 
     const option: echarts.EChartsOption = {
       backgroundColor: MORANDI.bg,
@@ -326,7 +314,6 @@ const AttentionComparisonViz: React.FC = () => {
                     attention={hasClass ? modelData.attention[classIdxInModel] : new Array(1001).fill(0)}
                     trueSites={modelData.true_sites}
                     modelName={modelName}
-                    className={className}
                     seqLength={1001}
                   />
                 );

@@ -37,7 +37,7 @@
  *     queryFn: () => fetchAttentionVisualization(),
  *   });
  */
-import React, { useMemo } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import * as echarts from 'echarts';
 import { useRna } from '../context/RnaContext';
@@ -183,7 +183,7 @@ const AttentionChart: React.FC<AttentionChartProps> = ({
 
 const AttentionDistributionViz: React.FC = () => {
   const { t } = useTranslation();
-  const { rnaSequence, classificationResults } = useRna();
+  const { rnaSequence } = useRna();
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['attentionVisualization', rnaSequence],

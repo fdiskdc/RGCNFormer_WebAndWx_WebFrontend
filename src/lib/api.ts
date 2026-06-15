@@ -147,10 +147,23 @@ export interface DatasetComparisonData {
 }
 
 export interface RgcnformerLocalizationData {
-  model_names: string[];
+  model_name: string;
+  classes: string[];
+  class_names: string[];
   k_labels: string[];
   k_values: number[];
   heatmap: number[][];
+  statistics: Array<{
+    class: string;
+    Mean: number;
+    Median: number;
+    Mode: number;
+    Mode_Ratio: number;
+    Sequence_Count: number;
+    Min_Value: number;
+    Max_Value: number;
+    Standard_Deviation: number;
+  }>;
 }
 
 export interface LocComparisonData {

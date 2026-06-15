@@ -47,7 +47,7 @@
 
 // ==================== Base URL Configuration ====================
 
-export const DEFAULT_BASE_URL = '/rgcnformer/api/v1';
+export const DEFAULT_BASE_URL = '/api/v1';
 export const BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) ?? DEFAULT_BASE_URL;
 
 // ==================== Default Headers ====================
@@ -58,7 +58,7 @@ export const DEFAULT_HEADERS = {
 
 // ==================== Legacy Endpoint Configuration ====================
 
-export const DEFAULT_LEGACY_PREDICT_URL = 'http://localhost:5000/rgcnformer/api/predict';
+export const DEFAULT_LEGACY_PREDICT_URL = '/api/predict';
 export const LEGACY_PREDICT_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_LEGACY_PREDICT_URL) ?? DEFAULT_LEGACY_PREDICT_URL;
 
 // ==================== API Endpoints ====================

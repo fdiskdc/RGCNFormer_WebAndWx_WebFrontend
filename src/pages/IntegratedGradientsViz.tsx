@@ -75,9 +75,6 @@ interface GraphData {
 }
 
 const DESKTOP_BREAKPOINT = 768;
-const SIDER_WIDTH_EXPANDED = 200;
-const SIDER_WIDTH_COLLAPSED = 80;
-const CONTENT_PADDING = 40;
 
 const CLASS_NAMES = [
   'Am (0)', 'Atol (1)', 'Cm (2)', 'Gm (3)', 'Tm (4)', 'Y (5)',
@@ -94,7 +91,7 @@ const IntegratedGradientsViz: React.FC<IntegratedGradientsVizProps> = ({ data: p
   const [error, setError] = useState<string | null>(null);
   const [gcnData, setGcnData] = useState<GraphData | null>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth > DESKTOP_BREAKPOINT);
+  const [isDesktop] = useState(window.innerWidth > DESKTOP_BREAKPOINT);
   const [topN, setTopN] = useState<number>(10);
   const [targetClassId, setTargetClassId] = useState<number | null>(null);
   const [hasComputed, setHasComputed] = useState(false);

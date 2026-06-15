@@ -18,17 +18,17 @@
 /**
  * vite.config.ts - Vite 构建配置 / Vite build config
  *
- * Vite 配置:基础路径 `/rgcnformer/`、React 插件、dev server 代理
- * `/rgcnformer/api` → 后端 `http://localhost:8000/api`(由环境变量
- * VITE_PROXY_TARGET 控制)。 / Vite config: base `/rgcnformer/`, React plugin,
- * dev server proxies `/rgcnformer/api` to backend `http://localhost:8000/api`
+ * Vite 配置:基础路径 `/`、React 插件、dev server 代理
+ * `/api` → 后端 `http://localhost:8000/api`(由环境变量
+ * VITE_PROXY_TARGET 控制)。 / Vite config: base `/`, React plugin,
+ * dev server proxies `/api` to backend `http://localhost:8000/api`
  * (controlled by VITE_PROXY_TARGET env var).
  *
  * 功能模块 / Modules:
  * - defineConfig(mode): Vite 配置工厂 / Vite config factory
  * - loadEnv: 加载 .env 模式环境变量 / Load .env mode env vars
  * - plugins: [react()]: React 插件 / React plugin
- * - server.proxy: /rgcnformer/api 代理到后端 / Proxy to backend
+ * - server.proxy: /api 代理到后端 / Proxy to backend
  *
  * 输入 / Inputs:
  * - VITE_PROXY_TARGET: 后端地址(默认 http://localhost:8000)/ Backend URL
@@ -39,8 +39,8 @@
  *
  * 数据流 / Data Flow:
  * 1. Vite 启动 → loadEnv → 决定 proxyTarget / Vite reads env, sets proxyTarget
- * 2. dev: 访问 /rgcnformer/api/... → 代理到 backend/api/... / Dev: proxy to backend
- * 3. build: 静态资源 base 为 /rgcnformer/ / Build: assets base /rgcnformer/
+ * 2. dev: 访问 /api/... → 代理到 backend/api/... / Dev: proxy to backend
+ * 3. build: 静态资源 base 为 / / Build: assets base /
  *
  * 相关文件 / Related Files:
  * - 调用 / Calls: vite、@vitejs/plugin-react
@@ -64,16 +64,15 @@ export default defineConfig(({ mode }) => {
   const proxyTarget = env.VITE_PROXY_TARGET || 'http://localhost:8000'
 
   return {
-    base: '/rgcnformer/',
+    base: '/',
     plugins: [react()],
     server: {
       host: '0.0.0.0',  // 👈 添加这一行，监听所有网络接口
       proxy: {
-        // 将所有 /rgcnformer/api 开头的请求代理到后端
-        '/rgcnformer/api': {
+        // 将所有 /api 开头的请求代理到后端，并保留原始路径
+        '/api': {
           target: proxyTarget,
           changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/rgcnformer\/api/, '/api'),
         },
       },
     },

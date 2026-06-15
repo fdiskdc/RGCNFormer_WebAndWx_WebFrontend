@@ -63,7 +63,7 @@ import type {
   VizType,
   DatasetType,
 } from '../components/workspace/types';
-import { BINDING_COLORS, getBindingColorIndex, VIZ_TYPE_REGISTRY } from '../components/workspace/types';
+import { VIZ_TYPE_REGISTRY } from '../components/workspace/types';
 import {
   DEFAULT_MODELS,
   createDefaultSequenceBlock,
@@ -314,63 +314,6 @@ const WorkspacePage: React.FC = () => {
       >
         {vizModalBlock && <VizRenderer vizBlock={vizModalBlock} />}
       </Modal>
-    </div>
-  );
-};
-
-// ==================== VizResultsArea ====================
-// Renders actual visualization results inline below the canvas
-
-interface VizResultsAreaProps {
-  vizBlocks: VisualizationBlock[];
-}
-
-const VizResultsArea: React.FC<VizResultsAreaProps> = ({
-  vizBlocks,
-}) => {
-  const completedViz = vizBlocks.filter((b) => b.status === 'completed' && b.result);
-
-  if (completedViz.length === 0) return null;
-
-  return (
-    <div
-      style={{
-        background: 'var(--ws-surface)',
-        borderTop: '1px solid var(--ws-border)',
-        padding: 16,
-        maxHeight: '50vh',
-        overflow: 'auto',
-      }}
-    >
-      <h3
-        style={{
-          fontSize: 14,
-          fontWeight: 600,
-          color: 'var(--ws-text-primary)',
-          margin: '0 0 12px 0',
-        }}
-      >
-        Visualization Results
-      </h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        {completedViz.map((vizBlock) => {
-            const colorIdx = getBindingColorIndex(vizBlock.boundModelId);
-            const colors = colorIdx >= 0 ? BINDING_COLORS[colorIdx] : null;
-            return (
-              <div
-                key={vizBlock.id}
-                style={colors ? {
-                  borderLeft: `3px solid ${colors.accent}`,
-                  paddingLeft: 12,
-                  background: colors.bg,
-                  borderRadius: 4,
-                } : {}}
-              >
-                <VizRenderer vizBlock={vizBlock} />
-              </div>
-            );
-          })}
-      </div>
     </div>
   );
 };

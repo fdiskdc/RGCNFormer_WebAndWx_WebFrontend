@@ -99,7 +99,7 @@ const LocComparisonViz: React.FC<LocComparisonVizProps> = ({ data }) => {
   useEffect(() => {
     if (!processedData || !chartRef.current) return;
 
-    const { modelNames, kLabels, heatmap, ranks, numModels, numK } = processedData;
+    const { modelNames, kLabels, heatmap, ranks, numK } = processedData;
 
     const chart = echarts.init(chartRef.current);
     chartInstanceRef.current = chart;

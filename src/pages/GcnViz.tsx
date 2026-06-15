@@ -75,11 +75,6 @@ interface ClassifiedLinks {
   pairingLinks: Link[];
 }
 
-const DESKTOP_BREAKPOINT = 768;
-const SIDER_WIDTH_EXPANDED = 200;
-const SIDER_WIDTH_COLLAPSED = 80;
-const CONTENT_PADDING = 40;
-
 // Morandi nucleotide color scheme - each nucleotide gets a distinct Morandi color
 const NUCLEOTIDE_MORANDI_COLORS = {
   'A': '#af9d8f', // 灰褐/米色调 (A)
@@ -115,7 +110,6 @@ const GcnViz: React.FC<GcnVizProps> = ({ data: propData }) => {
   const [error, setError] = useState<string | null>(null);
   const [gcnData, setGcnData] = useState<GraphData | null>(null);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
-  const [isDesktop, setIsDesktop] = useState(window.innerWidth > DESKTOP_BREAKPOINT);
   const graphRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const resizeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
