@@ -54,8 +54,8 @@ export const DEFAULT_MODELS: ModelBlock[] = [
   {
     id: 'model_rgcnformer',
     type: 'model',
-    title: 'DCPRES',
-    modelName: 'DCPRES',
+    title: 'mRModN',
+    modelName: 'mRModN',
     status: 'available',
     description:
       'Relation-aware Graph Convolutional Network with Transformer for RNA modification prediction. Supports 12 RNA modification types across A, C, G, U nucleotides.',

@@ -39,7 +39,7 @@
  * 版本 / Version: 1.0
  */
 /**
- * Centralized API configuration for DCPRES frontend
+ * Centralized API configuration for mRModN frontend
  * All API-related constants should be configured here
  */
 
@@ -47,7 +47,7 @@
 
 // ==================== Base URL Configuration ====================
 
-export const DEFAULT_BASE_URL = '/api/v1';
+export const DEFAULT_BASE_URL = '/mrmodn/api/v1';
 export const BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) ?? DEFAULT_BASE_URL;
 
 // ==================== Default Headers ====================

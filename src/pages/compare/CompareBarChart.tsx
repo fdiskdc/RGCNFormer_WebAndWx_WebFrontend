@@ -47,7 +47,7 @@ interface CompareBarChartProps {
 }
 
 const MORANDI_COLORS = [
-  '#B8A9C9',  // DCPRES - muted purple
+  '#B8A9C9',  // mRModN - muted purple
   '#A3B5A6',  // ProCSE - sage green
   '#C4A882',  // GCN - warm sand
   '#D4A0A0',  // K-Means - dusty rose

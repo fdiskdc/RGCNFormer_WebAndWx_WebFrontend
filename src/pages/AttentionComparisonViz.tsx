@@ -60,7 +60,7 @@ const MODEL_COLORS: Record<string, string> = {
 };
 
 const MODEL_DISPLAY_NAMES: Record<string, string> = {
-  mRModN: 'DCPRES',
+  mRModN: 'mRModN',
   MultiRM: 'ProCSE',
   modX: 'GCN',
   EvoRMD: 'DSCPS',
