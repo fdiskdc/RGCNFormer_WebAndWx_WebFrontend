@@ -47,7 +47,7 @@
 
 // ==================== Base URL Configuration ====================
 
-export const DEFAULT_BASE_URL = '/api/v1';
+export const DEFAULT_BASE_URL = '/mrmodn/api/v1';
 export const BASE_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_API_BASE_URL) ?? DEFAULT_BASE_URL;
 
 // ==================== Default Headers ====================
@@ -58,7 +58,7 @@ export const DEFAULT_HEADERS = {
 
 // ==================== Legacy Endpoint Configuration ====================
 
-export const DEFAULT_LEGACY_PREDICT_URL = '/api/predict';
+export const DEFAULT_LEGACY_PREDICT_URL = `${DEFAULT_BASE_URL}/attention-visualization`;
 export const LEGACY_PREDICT_URL = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_LEGACY_PREDICT_URL) ?? DEFAULT_LEGACY_PREDICT_URL;
 
 // ==================== API Endpoints ====================
@@ -70,10 +70,10 @@ export const ENDPOINTS = {
     INTEGRATED_GRADIENTS: `${BASE_URL}/integrated-gradients`,
     VISUALIZE_GCN_AGGREGATION: `${BASE_URL}/visualize-gcn-aggregation`,
     MODEL_COMPARISON: `${BASE_URL}/model-comparison`,
-    RGCNFORMER_CLASSIFICATION_HEATMAP: `${BASE_URL}/rgcnformer-classification-heatmap`,
+    MRMODN_CLASSIFICATION_HEATMAP: `${BASE_URL}/mrmodn-classification-heatmap`,
     DATASET_COMPARISON: `${BASE_URL}/dataset-comparison-heatmap`,
-    RGCNFORMER_LOCALIZATION: `${BASE_URL}/rgcnformer-localization`,
-    RGCNFORMER_LOC_COMPARISON: `${BASE_URL}/rgcnformer-loc-comparison`,
+    MRMODN_LOCALIZATION: `${BASE_URL}/mrmodn-localization`,
+    MRMODN_LOC_COMPARISON: `${BASE_URL}/mrmodn-loc-comparison`,
     UMAP_DATA: `${BASE_URL}/umap-data`,
     UMAP_CORA_DATA: `${BASE_URL}/umap-cora-data`,
     PREDICT: LEGACY_PREDICT_URL,

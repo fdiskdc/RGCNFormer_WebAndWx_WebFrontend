@@ -38,7 +38,7 @@
  * 使用示例 / Usage Example:
  *   // WorkspacePage.tsx 内
  *   navigate('/viz-display', { state: { vizBlocks, sequenceBlocks, modelBlocks } });
- *   // 浏览器 /rgcnformer/viz-display
+ *   // 浏览器 /mrmodn/viz-display
  */
 
 import React, { useEffect } from 'react';
@@ -120,7 +120,7 @@ const VizDisplayPage: React.FC = () => {
         <div style={{ fontSize: 48, opacity: 0.4 }}>📊</div>
         <p>No visualization data available.</p>
         <button
-          onClick={() => navigate('/')}
+          onClick={() => navigate('/nextgen')}
           style={{
             padding: '8px 24px',
             border: 'none',
@@ -140,7 +140,7 @@ const VizDisplayPage: React.FC = () => {
   const { sequenceBlocks, vizBlocks } = state;
 
   const handleBack = () => {
-    navigate('/');
+    navigate('/nextgen');
   };
 
   return (

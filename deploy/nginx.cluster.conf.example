@@ -3,11 +3,11 @@ server {
     server_name cluster.dawdawdawdawfafaawf.xyz;
 
     # Replace this path with the directory containing the uploaded dist files.
-    root /var/www/rgcnformer;
+    root /var/www/mrmodn;
     index index.html;
 
-    # Keep /api in the upstream request path. The Flask backend exposes /api/*.
-    location /api/ {
+    # The single Flask backend exposes the unified mRModN API.
+    location /mrmodn/api/ {
         proxy_pass http://127.0.0.1:8000;
         proxy_http_version 1.1;
         proxy_set_header Host $host;
@@ -17,7 +17,7 @@ server {
     }
 
     # BrowserRouter routes must fall back to the React entry page.
-    location / {
-        try_files $uri $uri/ /index.html;
+    location /mrmodn/ {
+        try_files $uri $uri/ /mrmodn/index.html;
     }
 }

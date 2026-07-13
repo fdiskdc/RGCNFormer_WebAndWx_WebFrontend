@@ -29,14 +29,14 @@
  *
  * 使用示例 / Usage Example:
  *   <Route path="/legacy" element={<MainPage />} />
- *   // 浏览器 /rgcnformer/legacy
+ *   // 浏览器 /mrmodn/legacy
  */
 /*
  * @Author: Chao Deng && chaodeng987@outlook.com
  * @Date: 2026-01-20 08:39:31
  * @LastEditors: Chao Deng && chaodeng987@outlook.com
  * @LastEditTime: 2026-01-22 21:10:44
- * @FilePath: /rgcnformer_mobile_web/frontend/src/pages/MainPage.tsx
+ * @FilePath: /mrmodn_mobile_web/frontend/src/pages/MainPage.tsx
  * @Description: 
  * 那只是一场游戏一场梦
  *  
@@ -79,7 +79,7 @@ const MainPage: React.FC = () => {
                 jobId: generateJobId(),
             });
 
-            navigate(`/results/${data.jobId}`);
+            navigate(`/classic/results/${data.jobId}`);
         } catch (error: any) {
             console.error('Error submitting task:', error);
             message.error(t('Submit task failed: {message}').replace('{message}', error.message));

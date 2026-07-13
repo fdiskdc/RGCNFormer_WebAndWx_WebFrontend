@@ -131,7 +131,7 @@ export interface CompareData {
   metric_names: string[];
 }
 
-export interface RgcnformerHeatmapData {
+export interface MrmodnHeatmapData {
   model_name: string;
   classes: string[];
   metric_names: string[];
@@ -146,7 +146,7 @@ export interface DatasetComparisonData {
   data: Array<Record<string, string | number | null>>;
 }
 
-export interface RgcnformerLocalizationData {
+export interface MrmodnLocalizationData {
   model_name: string;
   classes: string[];
   class_names: string[];
@@ -367,8 +367,8 @@ export async function fetchModelComparison(): Promise<CompareData> {
 /**
  * Fetch DCPRES classification heatmap data
  */
-export async function fetchRgcnformerHeatmap(): Promise<RgcnformerHeatmapData> {
-  const response = await fetch(ENDPOINTS.RGCNFORMER_CLASSIFICATION_HEATMAP);
+export async function fetchMrmodnHeatmap(): Promise<MrmodnHeatmapData> {
+  const response = await fetch(ENDPOINTS.MRMODN_CLASSIFICATION_HEATMAP);
 
   if (!response.ok) {
     throw await createApiError(response);
@@ -393,8 +393,8 @@ export async function fetchDatasetComparison(): Promise<DatasetComparisonData> {
 /**
  * Fetch DCPRES localization data
  */
-export async function fetchRgcnformerLocalization(): Promise<RgcnformerLocalizationData> {
-  const response = await fetch(ENDPOINTS.RGCNFORMER_LOCALIZATION);
+export async function fetchMrmodnLocalization(): Promise<MrmodnLocalizationData> {
+  const response = await fetch(ENDPOINTS.MRMODN_LOCALIZATION);
 
   if (!response.ok) {
     throw await createApiError(response);
@@ -406,8 +406,8 @@ export async function fetchRgcnformerLocalization(): Promise<RgcnformerLocalizat
 /**
  * Fetch DCPRES localization comparison data
  */
-export async function fetchRgcnformerLocComparison(): Promise<LocComparisonData> {
-  const response = await fetch(ENDPOINTS.RGCNFORMER_LOC_COMPARISON);
+export async function fetchMrmodnLocComparison(): Promise<LocComparisonData> {
+  const response = await fetch(ENDPOINTS.MRMODN_LOC_COMPARISON);
 
   if (!response.ok) {
     throw await createApiError(response);

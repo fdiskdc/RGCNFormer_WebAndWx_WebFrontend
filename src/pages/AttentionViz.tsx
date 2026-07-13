@@ -42,7 +42,7 @@
  *
  * 使用示例 / Usage Example:
  *   <Route path="/attention" element={<AttentionViz />} />
- *   // 浏览器 /rgcnformer/attention
+ *   // 浏览器 /mrmodn/attention
  */
 import React, { useState, useEffect, useMemo } from 'react';
 import { Spin, Alert, InputNumber, Button, Space, Card, Select, Typography } from 'antd';
@@ -453,7 +453,7 @@ const AttentionViz: React.FC<AttentionVizProps> = ({ data: propData }) => {
         message={t('Error')}
         description={
           <>
-            {t('Please enter an RNA sequence.')} <Link to="/">{t('Return to Home')}</Link>
+            {t('Please enter an RNA sequence.')} <Link to="/classic">{t('Return to Home')}</Link>
           </>
         }
         type="error"

@@ -32,7 +32,7 @@
  * 相关文件 / Related Files:
  * - 调用 / Calls: lib/api.ts(fetchDatasetComparison, DatasetComparisonData 类型)
  * - 被调用 / Called by: App.tsx(<Route path="/viz-display"> 内部使用)
- * - 关联 / Related: RgcnformerHeatmap.tsx(单数据集热力图)
+ * - 关联 / Related: MrmodnHeatmap.tsx(单数据集热力图)
  *
  * 使用示例 / Usage Example:
  *   const { data, isLoading, error } = useQuery({

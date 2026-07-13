@@ -92,20 +92,20 @@ const VizLayout: React.FC = () => {
   }, []);
 
   const pageTitles: Record<string, string> = {
-    '/classification': t('Classification Results'),
-    '/attention': t('Attention Weights'),
-    '/gcn': t('GCN Graph Structure'),
-    '/target-gcn': t('Target GCN'),
-    '/integrated-gradients': t('Integrated Gradients'),
-    '/model-viz': t('Model Architecture'),
+    '/classic/viz/classification': t('Classification Results'),
+    '/classic/viz/attention': t('Attention Weights'),
+    '/classic/viz/gcn': t('GCN Graph Structure'),
+    '/classic/viz/target-gcn': t('Target GCN'),
+    '/classic/viz/integrated-gradients': t('Integrated Gradients'),
+    '/classic/viz/model': t('Model Architecture'),
   };
 
   const menuItems = [
-    { key: '/classification', label: t('Classification Results') },
-    { key: '/attention', label: t('Attention Weights') },
-    { key: '/gcn', label: t('GCN Graph Structure') },
-    { key: '/integrated-gradients', label: t('Integrated Gradients') },
-    { key: '/model-viz', label: t('Model Architecture') },
+    { key: '/classic/viz/classification', label: t('Classification Results') },
+    { key: '/classic/viz/attention', label: t('Attention Weights') },
+    { key: '/classic/viz/gcn', label: t('GCN Graph Structure') },
+    { key: '/classic/viz/integrated-gradients', label: t('Integrated Gradients') },
+    { key: '/classic/viz/model', label: t('Model Architecture') },
   ];
 
   const menuItemStyle = (key: string): React.CSSProperties => ({
@@ -174,7 +174,7 @@ const VizLayout: React.FC = () => {
         <div style={{ padding: '16px', textAlign: 'center' }}>
           <Button
             type="primary"
-            onClick={() => navigate('/')}
+            onClick={() => navigate('/classic')}
             style={{ marginBottom: '16px', width: '100%', backgroundColor: MORANDI.btnBrown, borderColor: MORANDI.btnBrown }}
           >
             {t('Return to Home')}
@@ -259,7 +259,7 @@ const VizLayout: React.FC = () => {
           >
             EN
           </Button>
-          <Button size="small" type="primary" onClick={() => navigate('/')} style={{ backgroundColor: MORANDI.btnBrown, borderColor: MORANDI.btnBrown }}>
+          <Button size="small" type="primary" onClick={() => navigate('/classic')} style={{ backgroundColor: MORANDI.btnBrown, borderColor: MORANDI.btnBrown }}>
             {t('Return to Home')}
           </Button>
         </div>

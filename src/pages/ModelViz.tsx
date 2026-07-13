@@ -1,12 +1,12 @@
 /**
- * ModelViz.tsx - RGCNFormer 模型架构图(react-flow + dagre)/ Model architecture diagram
+ * ModelViz.tsx - mRModN 模型架构图(react-flow + dagre)/ Model architecture diagram
  *
- * /model-viz 路由页面。使用 react-flow + dagre 自动布局渲染 RGCNFormer 的
+ * /model-viz 路由页面。使用 react-flow + dagre 自动布局渲染 mRModN 的
  * 模型计算图(节点 = 各层 Conv1d / GCNBlock / Transformer / ClassQueryHead,
  * 边 = 数据流方向)。节点和边数据由 fetchModelGraph 从后端拉取(后端从 ONNX 模型
  * 解析得到 graph JSON)。提供 MiniMap 缩略图、Controls 缩放/平移、连线高亮。
  * Page mounted at /model-viz. Uses react-flow + dagre auto-layout to render the
- * RGCNFormer compute graph (nodes = Conv1d/GCNBlock/Transformer/ClassQueryHead,
+ * mRModN compute graph (nodes = Conv1d/GCNBlock/Transformer/ClassQueryHead,
  * edges = data flow). Nodes/edges are fetched via fetchModelGraph (backend parses
  * the ONNX model into a graph JSON). Provides MiniMap, zoom/pan Controls, edge highlight.
  *
@@ -37,7 +37,7 @@
  *
  * 使用示例 / Usage Example:
  *   <Route path="/model-viz" element={<ModelViz />} />
- *   // 浏览器 /rgcnformer/model-viz
+ *   // 浏览器 /mrmodn/model-viz
  */
 import React, { useState, useEffect, useCallback } from 'react';
 import ReactFlow, {

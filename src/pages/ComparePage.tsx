@@ -3,7 +3,7 @@
  *
  * /compare 路由页面(独立 Layout,非 VizLayout)。综合展示多模型对比数据:
  *   - 柱状图(CompareBarChart):各模型 ACC/AUC/F1 等指标
- *   - RGCNFormer 单模型热力图(RgcnformerHeatmap)
+ *   - mRModN 单模型热力图(MrmodnHeatmap)
  *   - 跨数据集热力图(DatasetComparisonHeatmap)
  *   - 单模型定位(LocalizationViz)
  *   - 跨模型定位对比(LocComparisonViz)
@@ -12,7 +12,7 @@
  * Page mounted at /compare (independent layout, not VizLayout). Aggregates multi-model
  * comparison data:
  *   - Bar chart (CompareBarChart): per-model ACC/AUC/F1
- *   - RGCNFormer heatmap (RgcnformerHeatmap)
+ *   - mRModN heatmap (MrmodnHeatmap)
  *   - Cross-dataset heatmap (DatasetComparisonHeatmap)
  *   - Single-model localization (LocalizationViz)
  *   - Cross-model localization (LocComparisonViz)
@@ -27,8 +27,8 @@
  *
  * 输入 / Inputs:
  * - URL: /compare(query 参数可指定对比模型集合,可选)
- * - 后端 /api/v1/model-comparison, dataset-comparison, rgcnformer-heatmap,
- *   rgcnformer-localization, rgcnformer-loc-comparison, umap, cora-umap
+ * - 后端 /api/v1/model-comparison, dataset-comparison, mrmodn-heatmap,
+ *   mrmodn-localization, mrmodn-loc-comparison, umap, cora-umap
  *
  * 输出 / Outputs:
  * - JSX.Element 综合对比页 / Comparison page JSX
@@ -46,16 +46,16 @@
  *
  * 使用示例 / Usage Example:
  *   <Route path="/compare" element={<ComparePage />} />
- *   // 浏览器 /rgcnformer/compare
+ *   // 浏览器 /mrmodn/compare
  */
 import React, { useState } from 'react';
 import { Layout, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from '../lib/i18n/LanguageContext';
 import { useQuery } from '@tanstack/react-query';
-import { fetchModelComparison, fetchRgcnformerHeatmap, fetchRgcnformerLocalization, fetchRgcnformerLocComparison, fetchUmapData, fetchCoraUmapData, fetchDatasetComparison } from '../lib/api';
+import { fetchModelComparison, fetchMrmodnHeatmap, fetchMrmodnLocalization, fetchMrmodnLocComparison, fetchUmapData, fetchCoraUmapData, fetchDatasetComparison } from '../lib/api';
 import CompareBarChart from './compare/CompareBarChart';
-import RgcnformerHeatmap from './RgcnformerHeatmap';
+import MrmodnHeatmap from './MrmodnHeatmap';
 import DatasetComparisonHeatmap from './DatasetComparisonHeatmap';
 import LocalizationViz from './LocalizationViz';
 import LocComparisonViz from './LocComparisonViz';
@@ -98,18 +98,18 @@ const ComparePage: React.FC = () => {
   });
 
   const { data: heatmapData } = useQuery({
-    queryKey: ['rgcnformerHeatmap'],
-    queryFn: fetchRgcnformerHeatmap,
+    queryKey: ['mrmodnHeatmap'],
+    queryFn: fetchMrmodnHeatmap,
   });
 
   const { data: localizationData } = useQuery({
-    queryKey: ['rgcnformerLocalization'],
-    queryFn: fetchRgcnformerLocalization,
+    queryKey: ['mrmodnLocalization'],
+    queryFn: fetchMrmodnLocalization,
   });
 
   const { data: locComparisonData } = useQuery({
-    queryKey: ['rgcnformerLocComparison'],
-    queryFn: fetchRgcnformerLocComparison,
+    queryKey: ['mrmodnLocComparison'],
+    queryFn: fetchMrmodnLocComparison,
   });
 
   const { data: umapData } = useQuery({
@@ -190,7 +190,7 @@ const ComparePage: React.FC = () => {
       case 'bar':
         return <CompareBarChart data={modelComparisonData} />;
       case 'heatmap':
-        return <RgcnformerHeatmap data={heatmapData} />;
+        return <MrmodnHeatmap data={heatmapData} />;
       case 'localization':
         return <LocalizationViz data={localizationData} />;
       case 'locComparison':
@@ -508,7 +508,7 @@ const ComparePage: React.FC = () => {
           <div style={{ padding: '16px', textAlign: 'center' }}>
             <Button
               type="primary"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/nextgen')}
               style={{ marginBottom: '16px', width: '100%', backgroundColor: MORANDI.btnBrown, borderColor: MORANDI.btnBrown }}
             >
               {t('Return to Home')}
@@ -600,7 +600,7 @@ const ComparePage: React.FC = () => {
           >
             EN
           </Button>
-          <Button size="small" type="primary" onClick={() => navigate('/')} style={{ backgroundColor: MORANDI.btnBrown, borderColor: MORANDI.btnBrown }}>
+          <Button size="small" type="primary" onClick={() => navigate('/nextgen')} style={{ backgroundColor: MORANDI.btnBrown, borderColor: MORANDI.btnBrown }}>
             {t('Return to Home')}
           </Button>
         </div>

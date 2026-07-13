@@ -4,11 +4,11 @@
  * /classification 之一(也可独立访问)。使用 ECharts 渲染两层可视化:
  *   1. 折线图:横轴 = 序列位置,纵轴 = 12 类修饰在该位置的概率(多 line,每类一色)
  *   2. 饼图:全序列上每类修饰的"被预测为正"位置占比
- * 数据由 fetchRgcnformerLocalization 拉取,经 useQuery 缓存。莫兰迪配色。
+ * 数据由 fetchMrmodnLocalization 拉取,经 useQuery 缓存。莫兰迪配色。
  * One of the /classification pages. Renders two ECharts views:
  *   1. Line chart: x = sequence position, y = per-class probability (one line per mod)
  *   2. Pie chart: per-class share of "predicted positive" positions across the sequence
- * Data via fetchRgcnformerLocalization + useQuery. Morandi palette.
+ * Data via fetchMrmodnLocalization + useQuery. Morandi palette.
  *
  * 功能模块 / Modules:
  * - 多 line 折线图(12 系列)/ 12-series line chart
@@ -18,33 +18,33 @@
  *
  * 输入 / Inputs:
  * - useRna().rnaSequence: 当前 RNA 序列 / current RNA sequence
- * - 后端 /api/v1/rgcnformer-localization 返回 RgcnformerLocalizationData
+ * - 后端 /api/v1/mrmodn-localization 返回 MrmodnLocalizationData
  *
  * 输出 / Outputs:
  * - JSX.Element 折线 + 饼图 / Line + pie JSX
  *
  * 数据流 / Data Flow:
  * 1. useRna().rnaSequence 变化 → 触发 useQuery 重新拉取
- * 2. fetchRgcnformerLocalization(seq) → matrix[L, 12] + sequence label
+ * 2. fetchMrmodnLocalization(seq) → matrix[L, 12] + sequence label
  * 3. 折线图 series.data = matrix
  * 4. 饼图 series.data = matrix.sum(axis=0) 归一化
  * 5. echart.setOption 渲染
  *
  * 相关文件 / Related Files:
- * - 调用 / Calls: lib/api.ts(fetchRgcnformerLocalization)、context/RnaContext
+ * - 调用 / Calls: lib/api.ts(fetchMrmodnLocalization)、context/RnaContext
  * - 被调用 / Called by: App.tsx(<Route path="/classification">)
  * - 关联 / Related: LocComparisonViz.tsx(多模型对比)、ClassificationViz.tsx
  *
  * 使用示例 / Usage Example:
  *   <Route path="/classification" element={<LocalizationViz />} />
- *   // 浏览器 /rgcnformer/classification
+ *   // 浏览器 /mrmodn/classification
  */
 import React, { useRef, useEffect } from 'react';
 import * as echarts from 'echarts';
 import type { ECharts } from 'echarts';
 import { useTranslation } from '../lib/i18n/LanguageContext';
 import { useQuery } from '@tanstack/react-query';
-import { fetchRgcnformerLocalization, type RgcnformerLocalizationData } from '../lib/api';
+import { fetchMrmodnLocalization, type MrmodnLocalizationData } from '../lib/api';
 
 const MORANDI = {
   bgCircle: '#EBEBEB',
@@ -55,7 +55,7 @@ const MORANDI = {
 };
 
 interface LocalizationVizProps {
-  data?: RgcnformerLocalizationData;
+  data?: MrmodnLocalizationData;
 }
 
 const LocalizationViz: React.FC<LocalizationVizProps> = ({ data: propData }) => {
@@ -64,8 +64,8 @@ const LocalizationViz: React.FC<LocalizationVizProps> = ({ data: propData }) => 
   const chartInstanceRef = useRef<ECharts | null>(null);
 
   const { data: queryData, isLoading, isError } = useQuery({
-    queryKey: ['rgcnformerLocalization'],
-    queryFn: fetchRgcnformerLocalization,
+    queryKey: ['mrmodnLocalization'],
+    queryFn: fetchMrmodnLocalization,
     enabled: !propData,
   });
 

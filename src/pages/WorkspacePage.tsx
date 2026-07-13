@@ -44,7 +44,7 @@
  *
  * 使用示例 / Usage Example:
  *   <Route path="/" element={<WorkspacePage />} />
- *   // 浏览器 /rgcnformer/
+ *   // 浏览器 /mrmodn/
  */
 
 import React, { useState, useCallback, useEffect } from 'react';
@@ -160,7 +160,7 @@ const WorkspacePage: React.FC = () => {
       if (!seqBlock || !seqBlock.sequence) return;
 
       // Check if the bound model is not yet implemented
-      const IMPLEMENTED_MODELS = ['model_rgcnformer'];
+      const IMPLEMENTED_MODELS = ['model_mrmodn'];
       if (vizBlock.boundModelId && !IMPLEMENTED_MODELS.includes(vizBlock.boundModelId)) {
         message.warning('Model Coming Soon — This model is not yet available.');
         return;
@@ -264,7 +264,7 @@ const WorkspacePage: React.FC = () => {
           </span>
           <button
             className="process-btn"
-            onClick={() => navigate('/compare')}
+            onClick={() => navigate('/nextgen/compare')}
             title="Compare model performance"
           >
             Compare Page

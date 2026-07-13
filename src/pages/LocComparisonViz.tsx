@@ -2,10 +2,10 @@
  * LocComparisonViz.tsx - 多模型定位对比柱状图 / Multi-model localization comparison
  *
  * /classification 之一(也可独立访问)。子组件式 ECharts 柱状图:横轴 = 模型
- * (RGCNFormer / EvoRMD 等),纵轴 = 某一定位指标(如 ACC / AUC),每个模型一个柱,
+ * (mRModN / EvoRMD 等),纵轴 = 某一定位指标(如 ACC / AUC),每个模型一个柱,
  * 并按排名染色(1st 绿,2nd 橙,3rd 红)。数据由 props 传入 LocComparisonData。
  * One of the /classification pages. Renders a comparison bar chart via ECharts:
- * x-axis = models (RGCNFormer/EvoRMD/etc.), y-axis = a localization metric (ACC/AUC),
+ * x-axis = models (mRModN/EvoRMD/etc.), y-axis = a localization metric (ACC/AUC),
  * one bar per model, color-coded by rank (1st green, 2nd amber, 3rd red). Data
  * is passed via props (LocComparisonData).
  *

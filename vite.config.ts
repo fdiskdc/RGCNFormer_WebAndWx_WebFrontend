@@ -3,7 +3,7 @@
  * @Date: 2026-06-03 14:37:46
  * @LastEditors: Chao Deng && chaodeng987@outlook.com
  * @LastEditTime: 2026-06-03 16:44:27
- * @FilePath: /vscode20260424/RGCNFormer_WebAndWx_WebFrontend/vite.config.ts
+ * @FilePath: /vscode20260424/mRModN_WebAndWx_WebFrontend/vite.config.ts
  * @Description: 
  * 那只是一场游戏一场梦
  *  
@@ -64,13 +64,13 @@ export default defineConfig(({ mode }) => {
   const proxyTarget = env.VITE_PROXY_TARGET || 'http://localhost:8000'
 
   return {
-    base: '/',
+    base: '/mrmodn/',
     plugins: [react()],
     server: {
       host: '0.0.0.0',  // 👈 添加这一行，监听所有网络接口
       proxy: {
         // 将所有 /api 开头的请求代理到后端，并保留原始路径
-        '/api': {
+        '/mrmodn/api': {
           target: proxyTarget,
           changeOrigin: true,
         },

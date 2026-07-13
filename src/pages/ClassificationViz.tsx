@@ -1,11 +1,11 @@
 /**
  * ClassificationViz.tsx - 12 类修饰分类树(饼图 + 树形)/ 12-class classification tree
  *
- * /classification 之一(也可独立访问)。使用 ECharts 树图渲染 RGCNFormer 12 类修饰
+ * /classification 之一(也可独立访问)。使用 ECharts 树图渲染 mRModN 12 类修饰
  * 的分类预测结果:根节点 = 序列,子节点 = 12 类修饰(Am/Atol/Cm/Gm/Tm/Y/ac4C/m1A/
  * m5C/m6A/m6Am/m7G),每类的概率按饼图切片大小展示。流程:用户输入序列 →
  * submitTask → 轮询 getResult → resultData.classification。
- * One of the /classification pages. Uses an ECharts tree to render RGCNFormer's
+ * One of the /classification pages. Uses an ECharts tree to render mRModN's
  * 12-class classification predictions: root = sequence, children = 12 modification
  * classes (Am/Atol/Cm/Gm/Tm/Y/ac4C/m1A/m5C/m6A/m6Am/m7G); per-class probability is
  * shown as a pie-slice size. Pipeline: user sequence → submitTask → poll getResult →
@@ -38,7 +38,7 @@
  *
  * 使用示例 / Usage Example:
  *   <Route path="/classification" element={<ClassificationViz />} />
- *   // 浏览器 /rgcnformer/classification
+ *   // 浏览器 /mrmodn/classification
  */
 import React, { useState, useEffect } from 'react';
 import ReactECharts from 'echarts-for-react';
@@ -209,7 +209,7 @@ const ClassificationViz: React.FC<ClassificationVizProps> = ({ data: propData })
         message={t('Error')}
         description={
           <>
-            {t('Please enter an RNA sequence.')} <Link to="/">{t('Return to Home')}</Link>
+            {t('Please enter an RNA sequence.')} <Link to="/classic">{t('Return to Home')}</Link>
           </>
         }
         type="error"

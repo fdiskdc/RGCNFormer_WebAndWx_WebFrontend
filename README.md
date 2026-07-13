@@ -1,10 +1,10 @@
-# RGCNFormer 网页前端 / RGCNFormer Web Frontend
+# mRModN 网页前端 / mRModN Web Frontend
 
 ## 项目背景 / Project Background
 
-本项目是 RGCNFormer RNA 修饰分类系统的**网页可视化前端**,提供多视图对比(定位对比、分类对比、柱状图对比等)与多模型注意力可视化能力,服务于研究人员的分析需求。
+本项目是 mRModN RNA 修饰分类系统的**网页可视化前端**,提供多视图对比(定位对比、分类对比、柱状图对比等)与多模型注意力可视化能力,服务于研究人员的分析需求。
 
-This project is the **web visualization frontend** of the RGCNFormer RNA modification classification system. It provides multi-view comparisons (localization comparison, classification comparison, bar-chart comparison) and attention visualization across multiple models, serving researchers' analysis needs.
+This project is the **web visualization frontend** of the mRModN RNA modification classification system. It provides multi-view comparisons (localization comparison, classification comparison, bar-chart comparison) and attention visualization across multiple models, serving researchers' analysis needs.
 
 ## 项目作用 / Purpose
 
@@ -13,8 +13,8 @@ This project is the **web visualization frontend** of the RGCNFormer RNA modific
 - Submit RNA sequences to trigger backend inference
 - 展示 12 类 RNA 修饰位点的**定位可视化**(概率曲线 / 折线 / 柱状图)
 - **Localization visualization** for 12 RNA modification types (probability curves / lines / bars)
-- 多模型**对比视图**(RGCNFormer vs EvoRMD 等)
-- **Multi-model comparison view** (RGCNFormer vs EvoRMD, etc.)
+- 多模型**对比视图**(mRModN vs EvoRMD 等)
+- **Multi-model comparison view** (mRModN vs EvoRMD, etc.)
 - 注意力权重热力图与 UMAP 嵌入
 - Attention weight heatmaps and UMAP embeddings
 - 完整的**中英双语**界面
@@ -34,7 +34,7 @@ This project is the **web visualization frontend** of the RGCNFormer RNA modific
 ## 目录结构 / Directory Layout
 
 ```
-RGCNFormer_WebAndWx_WebFrontend/
+mRModN_WebAndWx_WebFrontend/
 ├── index.html              # HTML 入口
 ├── package.json            # 依赖与脚本
 ├── vite.config.ts          # Vite 构建配置(别名、插件、代理)
@@ -77,7 +77,7 @@ RGCNFormer_WebAndWx_WebFrontend/
 ### 安装 / Install
 
 ```bash
-cd RGCNFormer_WebAndWx_WebFrontend
+cd mRModN_WebAndWx_WebFrontend
 npm install   # 或 pnpm install / yarn
 ```
 
@@ -123,7 +123,7 @@ npm run lint
 | `src/lib/i18n/zh.ts` | 中文文案(模块化 key → 文案)/ Chinese i18n strings (modular key → text) |
 | `src/lib/i18n/en.ts` | 英文文案 / English i18n strings |
 | `src/pages/LocalizationViz.tsx` | 定位可视化主页:序列输入、12 类修饰概率曲线、注意力热图 / Localization viz main page: sequence input, 12-class probability curves, attention heatmap |
-| `src/pages/LocComparisonViz.tsx` | 多模型定位对比:并排展示 RGCNFormer / EvoRMD 等模型结果 / Multi-model localization comparison: side-by-side RGCNFormer / EvoRMD results |
+| `src/pages/LocComparisonViz.tsx` | 多模型定位对比:并排展示 mRModN / EvoRMD 等模型结果 / Multi-model localization comparison: side-by-side mRModN / EvoRMD results |
 | `src/pages/compare/CompareBarChart.tsx` | 柱状图对比:不同模型 / 不同样本的指标对比 / Bar-chart comparison: metrics across models / samples |
 | `src/components/workspace/types.ts` | 工作区数据模型:序列、预测、注意力、对比配置等 TS 类型 / Workspace data model: TS types for sequence, prediction, attention, comparison config |
 | `src/components/workspace/mockData.ts` | 模拟数据:开发期前端不依赖后端时使用 / Mock data: for frontend dev without backend dependency |
@@ -153,7 +153,7 @@ vite.config.ts dev proxy → Cluster_WebAndWx_backend/server.py
 
 - **Cluster_WebAndWx_backend** - 后端 API,本项目通过 `src/lib/api.ts` 调用 / Backend API called via `src/lib/api.ts`
 - **Cluster_WebAndWx_WxFrontend** - 微信小程序端,本项目是其网页版 / Web counterpart of the WeChat mini-program
-- **rgcnformer_sum** - 模型主项目,导出 ONNX 供后端加载 / Model project exporting ONNX for backend
+- **mrmodn_sum** - 模型主项目,导出 ONNX 供后端加载 / Model project exporting ONNX for backend
 
 ## 注意事项 / Notes
 

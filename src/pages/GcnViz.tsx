@@ -37,7 +37,7 @@
  * 使用示例 / Usage Example:
  *   // App.tsx
  *   <Route path="/gcn" element={<GcnViz />} />
- *   // 浏览器访问 http://host:5173/rgcnformer/gcn
+ *   // 浏览器访问 http://host:5173/mrmodn/gcn
  */
 import React, { useState, useEffect, useRef } from 'react';
 import ForceGraph3D from 'react-force-graph-3d';
@@ -338,7 +338,7 @@ const GcnViz: React.FC<GcnVizProps> = ({ data: propData }) => {
         message={t('Error')}
         description={
           <>
-            {t('Please enter an RNA sequence.')} <Link to="/">{t('Return to Home')}</Link>
+            {t('Please enter an RNA sequence.')} <Link to="/classic">{t('Return to Home')}</Link>
           </>
         }
         type="error"

@@ -40,7 +40,7 @@
  *
  * 使用示例 / Usage Example:
  *   <Route path="/integrated-gradients" element={<IntegratedGradientsViz />} />
- *   // 浏览器 /rgcnformer/integrated-gradients
+ *   // 浏览器 /mrmodn/integrated-gradients
  */
 import React, { useState, useEffect, useRef } from 'react';
 import ForceGraph3D from 'react-force-graph-3d';
@@ -273,7 +273,7 @@ const IntegratedGradientsViz: React.FC<IntegratedGradientsVizProps> = ({ data: p
         message={t('Error')}
         description={
           <>
-            {t('Please enter an RNA sequence.')} <Link to="/">{t('Return to Home')}</Link>
+            {t('Please enter an RNA sequence.')} <Link to="/classic">{t('Return to Home')}</Link>
           </>
         }
         type="error"

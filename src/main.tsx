@@ -50,7 +50,7 @@ import App from './App.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename="/mrmodn">
       <RnaProvider>
         <LanguageProvider>
           <App />

@@ -37,27 +37,18 @@
  * - 依赖 / Depends on: lib/i18n/LanguageContext.tsx, @tanstack/react-query
  *
  * 使用示例 / Usage Example:
- *   // 访问 /rgcnformer/classification
+ *   // 访问 /mrmodn/classification
  *   // → 匹配 <Route path="/classification" element={<ClassificationViz />}>
  *   // → 父级 <Route element={<VizLayout />}> 渲染 Sider+Content
  *   // → <Outlet /> 处挂载 ClassificationViz
  */
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LanguageProvider } from './lib/i18n/LanguageContext';
-import WorkspacePage from './pages/WorkspacePage';
 import MainPage from './pages/MainPage';
-import ClassificationViz from './pages/ClassificationViz';
-import AttentionViz from './pages/AttentionViz';
-import GcnViz from './pages/GcnViz';
-import TargetGcnViz from './pages/TargetGcnViz';
-import IntegratedGradientsViz from './pages/IntegratedGradientsViz';
-import ModelViz from './pages/ModelViz';
-import ResultsPage from './pages/ResultsPage';
-import VizDisplayPage from './pages/VizDisplayPage';
-import ComparePage from './pages/ComparePage';
 import VizLayout from './components/VizLayout';
+import LandingPage from './pages/LandingPage';
 import './App.css';
 
 // Create a client for TanStack Query
@@ -71,25 +62,37 @@ const queryClient = new QueryClient({
   },
 });
 
+const WorkspacePage = lazy(() => import('./pages/WorkspacePage'));
+const ClassificationViz = lazy(() => import('./pages/ClassificationViz'));
+const AttentionViz = lazy(() => import('./pages/AttentionViz'));
+const GcnViz = lazy(() => import('./pages/GcnViz'));
+const TargetGcnViz = lazy(() => import('./pages/TargetGcnViz'));
+const IntegratedGradientsViz = lazy(() => import('./pages/IntegratedGradientsViz'));
+const ModelViz = lazy(() => import('./pages/ModelViz'));
+const ResultsPage = lazy(() => import('./pages/ResultsPage'));
+const VizDisplayPage = lazy(() => import('./pages/VizDisplayPage'));
+const ComparePage = lazy(() => import('./pages/ComparePage'));
+
 const App: React.FC = () => {
   return (
     <LanguageProvider>
       <QueryClientProvider client={queryClient}>
-        <Routes>
-          <Route path="/" element={<WorkspacePage />} />
-          <Route path="/legacy" element={<MainPage />} />
+        <Suspense fallback={<div style={{ padding: 32 }}>Loading mRModN…</div>}><Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/classic" element={<MainPage />} />
           <Route element={<VizLayout />}>
-            <Route path="/classification" element={<ClassificationViz />} />
-            <Route path="/attention" element={<AttentionViz />} />
-            <Route path="/gcn" element={<GcnViz />} />
-            <Route path="/target-gcn" element={<TargetGcnViz />} />
-            <Route path="/integrated-gradients" element={<IntegratedGradientsViz />} />
-            <Route path="/model-viz" element={<ModelViz />} />
+            <Route path="/classic/viz/classification" element={<ClassificationViz />} />
+            <Route path="/classic/viz/attention" element={<AttentionViz />} />
+            <Route path="/classic/viz/gcn" element={<GcnViz />} />
+            <Route path="/classic/viz/target-gcn" element={<TargetGcnViz />} />
+            <Route path="/classic/viz/integrated-gradients" element={<IntegratedGradientsViz />} />
+            <Route path="/classic/viz/model" element={<ModelViz />} />
           </Route>
-          <Route path="/viz-display" element={<VizDisplayPage />} />
-          <Route path="/results/:jobId" element={<ResultsPage />} />
-          <Route path="/compare" element={<ComparePage />} />
-        </Routes>
+          <Route path="/classic/results/:jobId" element={<ResultsPage />} />
+          <Route path="/nextgen" element={<WorkspacePage />} />
+          <Route path="/nextgen/viz-display" element={<VizDisplayPage />} />
+          <Route path="/nextgen/compare" element={<ComparePage />} />
+        </Routes></Suspense>
       </QueryClientProvider>
     </LanguageProvider>
   );

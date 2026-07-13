@@ -8,7 +8,7 @@
  *
  * 功能模块 / Modules:
  * - generateId(prefix): 基于时间戳 + 计数器的 ID / timestamp + counter ID
- * - DEFAULT_MODELS: 默认模型块(RGCNFormer / GCN / Baseline)/ default model blocks
+ * - DEFAULT_MODELS: 默认模型块(mRModN / GCN / Baseline)/ default model blocks
  * - DEFAULT_SEQUENCE: 示例 RNA 序列 / sample RNA sequence
  * - SAMPLE_VISUALIZATION_DATA: 示例注意力 / 定位数据 / sample attention/loc data
  *
@@ -52,7 +52,7 @@ export const generateId = (prefix: string): string => {
 
 export const DEFAULT_MODELS: ModelBlock[] = [
   {
-    id: 'model_rgcnformer',
+    id: 'model_mrmodn',
     type: 'model',
     title: 'DCPRES',
     modelName: 'DCPRES',

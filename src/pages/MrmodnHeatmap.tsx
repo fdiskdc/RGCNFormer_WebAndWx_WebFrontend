@@ -1,12 +1,12 @@
 /**
- * RgcnformerHeatmap.tsx - RGCNFormer 在某数据集上的分类热力图 / RGCNFormer classification heatmap
+ * MrmodnHeatmap.tsx - mRModN 在某数据集上的分类热力图 / mRModN classification heatmap
  *
  * /viz-display 之一。使用 ECharts 渲染一个 12 × 12(或 12 × N)热力图,行 = 真实
- * 修饰类型,列 = 预测修饰类型,颜色 = 归一化频次或概率。数据由 fetchRgcnformerHeatmap
+ * 修饰类型,列 = 预测修饰类型,颜色 = 归一化频次或概率。数据由 fetchMrmodnHeatmap
  * 拉取,经 useQuery 缓存。配色与 VizLayout 的莫兰迪色卡一致。
  * One of the /viz-display pages. Renders an ECharts heatmap of size 12×12 (or 12×N):
  * rows = true modification type, columns = predicted modification type, color =
- * normalized frequency/probability. Data via fetchRgcnformerHeatmap + useQuery.
+ * normalized frequency/probability. Data via fetchMrmodnHeatmap + useQuery.
  * Colors follow the Morandi palette shared with VizLayout.
  *
  * 功能模块 / Modules:
@@ -16,26 +16,26 @@
  * - 加载/错误态 / Loading/error states
  *
  * 输入 / Inputs:
- * - 后端 /api/v1/rgcnformer-heatmap 返回 RgcnformerHeatmapData
+ * - 后端 /api/v1/mrmodn-heatmap 返回 MrmodnHeatmapData
  *
  * 输出 / Outputs:
  * - JSX.Element 热力图 / Heatmap JSX
  *
  * 数据流 / Data Flow:
- * 1. useQuery → fetchRgcnformerHeatmap() → matrix + labels
+ * 1. useQuery → fetchMrmodnHeatmap() → matrix + labels
  * 2. ECharts option({ xAxis, yAxis, series: heatmap, visualMap })
  * 3. echart.setOption(option)
  * 4. 鼠标 hover → tooltip 弹出
  *
  * 相关文件 / Related Files:
- * - 调用 / Calls: lib/api.ts(fetchRgcnformerHeatmap, RgcnformerHeatmapData)
+ * - 调用 / Calls: lib/api.ts(fetchMrmodnHeatmap, MrmodnHeatmapData)
  * - 被调用 / Called by: App.tsx(<Route path="/viz-display"> 内部)
  * - 关联 / Related: DatasetComparisonHeatmap.tsx(跨数据集版本)
  *
  * 使用示例 / Usage Example:
  *   const { data } = useQuery({
- *     queryKey: ['rgcnformer-heatmap'],
- *     queryFn: () => fetchRgcnformerHeatmap(),
+ *     queryKey: ['mrmodn-heatmap'],
+ *     queryFn: () => fetchMrmodnHeatmap(),
  *   });
  */
 import React, { useRef, useEffect } from 'react';
@@ -43,7 +43,7 @@ import * as echarts from 'echarts';
 import type { ECharts } from 'echarts';
 import { useTranslation } from '../lib/i18n/LanguageContext';
 import { useQuery } from '@tanstack/react-query';
-import { fetchRgcnformerHeatmap, type RgcnformerHeatmapData } from '../lib/api';
+import { fetchMrmodnHeatmap, type MrmodnHeatmapData } from '../lib/api';
 
 const MORANDI = {
   sidebarBg: '#9E9288',
@@ -60,18 +60,18 @@ const MORANDI = {
 
 const HEATMAP_COLORS = ['#EDE3DA', '#B8A9C9', '#8DA399'];
 
-interface RgcnformerHeatmapProps {
-  data?: RgcnformerHeatmapData;
+interface MrmodnHeatmapProps {
+  data?: MrmodnHeatmapData;
 }
 
-const RgcnformerHeatmap: React.FC<RgcnformerHeatmapProps> = ({ data: propData }) => {
+const MrmodnHeatmap: React.FC<MrmodnHeatmapProps> = ({ data: propData }) => {
   const { t } = useTranslation();
   const chartRef = useRef<HTMLDivElement>(null);
   const chartInstanceRef = useRef<ECharts | null>(null);
 
   const { data: queryData, isLoading, isError } = useQuery({
-    queryKey: ['rgcnformerHeatmap'],
-    queryFn: fetchRgcnformerHeatmap,
+    queryKey: ['mrmodnHeatmap'],
+    queryFn: fetchMrmodnHeatmap,
     enabled: !propData,
   });
 
@@ -296,4 +296,4 @@ const RgcnformerHeatmap: React.FC<RgcnformerHeatmapProps> = ({ data: propData })
   );
 };
 
-export default RgcnformerHeatmap;
+export default MrmodnHeatmap;
